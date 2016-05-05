@@ -1,2 +1,2 @@
 # SimpleScript
-Create Sponge scripts using plain English.
+Create Sponge scripts.
