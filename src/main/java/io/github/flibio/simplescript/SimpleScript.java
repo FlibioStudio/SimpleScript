@@ -24,9 +24,9 @@
  */
 package io.github.flibio.simplescript;
 
-import org.spongepowered.api.Sponge;
+import io.github.flibio.simplescript.parsing.FileResolver;
 
-import io.github.flibio.simplescript.parsing.MainParser;
+import org.spongepowered.api.Sponge;
 import me.flibio.updatifier.Updatifier;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -40,8 +40,8 @@ public class SimpleScript {
 
     @Listener
     public void onStart(GameInitializationEvent event) {
-        MainParser parser = MainParser.of(new File("config/simplescript/scripts")).get();
-        Sponge.getGame().getEventManager().registerListeners(this, new Events(parser));
+        FileResolver resolver = FileResolver.of(new File("config/simplescript/scripts")).get();
+        Sponge.getGame().getEventManager().registerListeners(this, new Events(resolver));
     }
 
 }

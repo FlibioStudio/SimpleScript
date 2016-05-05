@@ -24,7 +24,8 @@
  */
 package io.github.flibio.simplescript;
 
-import io.github.flibio.simplescript.parsing.MainParser;
+import io.github.flibio.simplescript.parsing.FileResolver;
+
 import io.github.flibio.simplescript.parsing.block.Event.EventType;
 import io.github.flibio.simplescript.parsing.variable.Variable;
 import org.spongepowered.api.entity.living.player.Player;
@@ -33,15 +34,15 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 public class Events {
 
-    private MainParser parser;
+    private FileResolver resolver;
 
-    public Events(MainParser parser) {
-        this.parser = parser;
+    public Events(FileResolver resolver) {
+        this.resolver = resolver;
     }
 
     @Listener
     public void onJoin(ClientConnectionEvent.Join event) {
-        parser.getEvents().get(EventType.JOIN).forEach(e -> {
+        resolver.getEvents().get(EventType.JOIN).forEach(e -> {
             e.addVariable(new Variable<Player>("player", event.getTargetEntity()));
             e.run();
         });
@@ -49,7 +50,7 @@ public class Events {
 
     @Listener
     public void onQuit(ClientConnectionEvent.Disconnect event) {
-        parser.getEvents().get(EventType.QUIT).forEach(e -> {
+        resolver.getEvents().get(EventType.QUIT).forEach(e -> {
             e.addVariable(new Variable<Player>("player", event.getTargetEntity()));
             e.run();
         });

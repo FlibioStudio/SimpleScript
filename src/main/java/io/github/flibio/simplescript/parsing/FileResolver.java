@@ -24,13 +24,14 @@
  */
 package io.github.flibio.simplescript.parsing;
 
+import io.github.flibio.simplescript.parsing.line.Line;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
 import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Event;
 import io.github.flibio.simplescript.parsing.block.Event.EventType;
-import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.BroadcastParser;
 import io.github.flibio.simplescript.parsing.parser.EventParser;
 import io.github.flibio.simplescript.parsing.parser.Parser;
@@ -45,13 +46,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class MainParser {
+public class FileResolver {
 
     private List<Parser<?>> parsers = Arrays.asList(new EventParser(), new BroadcastParser());
     private Map<Integer, Block> superBlocks = new HashMap<>();
     private Multimap<EventType, Event> events = HashMultimap.create();
 
-    protected MainParser(List<Line> lines) {
+    protected FileResolver(List<Line> lines) {
 
         lines.forEach(line -> {
             for (Parser<?> parser : parsers) {
@@ -79,7 +80,7 @@ public class MainParser {
         return events;
     }
 
-    public static Optional<MainParser> of(File folder) {
+    public static Optional<FileResolver> of(File folder) {
         try {
             List<Line> lines = new ArrayList<>();
             folder.mkdirs();
@@ -91,7 +92,7 @@ public class MainParser {
                     }
                 }
             }
-            return Optional.of(new MainParser(lines));
+            return Optional.of(new FileResolver(lines));
         } catch (IOException e) {
             return Optional.empty();
         }
