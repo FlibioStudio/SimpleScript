@@ -22,36 +22,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript;
+package io.github.flibio.simplescript.parsing.block;
 
-import io.github.flibio.simplescript.parsing.FileResolver;
-import io.github.flibio.simplescript.parsing.block.Event.EventType;
 import io.github.flibio.simplescript.parsing.variable.Variable;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
-public class Events {
+import java.util.Optional;
 
-    private FileResolver resolver;
+public class Send extends Block {
 
-    public Events(FileResolver resolver) {
-        this.resolver = resolver;
+    private String msg;
+    private String target;
+
+    public Send(Block superBlock, int indentLevel, String msg, String target) {
+        super(superBlock, indentLevel);
+        this.msg = msg;
+        this.target = target;
     }
 
-    @Listener
-    public void onJoin(ClientConnectionEvent.Join event) {
-        resolver.getEvents().get(EventType.JOIN).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity()));
-            e.run();
-        });
+    public String getMessage() {
+        return msg;
     }
 
-    @Listener
-    public void onQuit(ClientConnectionEvent.Disconnect event) {
-        resolver.getEvents().get(EventType.QUIT).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity()));
-            e.run();
-        });
+    @Override
+    public void run() {
+        Optional<Variable> vOpt = getVariable(target);
+        if (vOpt.isPresent()) {
+            Variable var = vOpt.get();
+            if (var.getValue() instanceof MessageReceiver) {
+                ((MessageReceiver) var.getValue()).sendMessage(TextSerializers.FORMATTING_CODE.deserialize(msg));
+            }
+        }
     }
-
 }

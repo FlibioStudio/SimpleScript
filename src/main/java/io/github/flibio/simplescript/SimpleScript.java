@@ -24,10 +24,13 @@
  */
 package io.github.flibio.simplescript;
 
+import io.github.flibio.simplescript.commands.ReloadCommand;
+import io.github.flibio.simplescript.commands.SimpleScriptCommand;
 import io.github.flibio.simplescript.parsing.FileResolver;
-
-import org.spongepowered.api.Sponge;
+import io.github.flibio.utils.commands.CommandLoader;
 import me.flibio.updatifier.Updatifier;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
@@ -38,10 +41,22 @@ import java.io.File;
 @Plugin(id = PluginInfo.ID, name = PluginInfo.NAME, version = PluginInfo.VERSION, description = PluginInfo.DESCRIPTION)
 public class SimpleScript {
 
+    private static SimpleScript access;
+
     @Listener
     public void onStart(GameInitializationEvent event) {
+        access = this;
         FileResolver resolver = FileResolver.of(new File("config/simplescript/scripts")).get();
-        Sponge.getGame().getEventManager().registerListeners(this, new Events(resolver));
+        Sponge.getEventManager().registerListeners(this, new Events(resolver));
+        CommandLoader.registerCommands(this, "&cYou must be a {sourcetype} to use this command!",
+                new SimpleScriptCommand(),
+                new ReloadCommand());
+    }
+
+    public static void reload(FileResolver resolver) {
+        EventManager manager = Sponge.getEventManager();
+        manager.unregisterPluginListeners(access);
+        manager.registerListeners(access, new Events(resolver));
     }
 
 }

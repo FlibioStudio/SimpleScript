@@ -24,12 +24,15 @@
  */
 package io.github.flibio.simplescript.parsing.variable;
 
-public class Variable<T> {
+public class Variable {
 
     private String name;
-    private T value;
+    private Object value;
 
-    public Variable(String name, T value) {
+    /*
+     * Specific variable parser Variable types Tokens that accept spaces
+     */
+    public Variable(String name, Object value) {
         this.name = name;
         this.value = value;
     }
@@ -38,11 +41,11 @@ public class Variable<T> {
         return name;
     }
 
-    public T getValue() {
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(T newValue) {
+    public void setValue(Object newValue) {
         value = newValue;
     }
 }

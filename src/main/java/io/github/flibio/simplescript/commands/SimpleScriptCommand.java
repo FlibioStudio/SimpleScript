@@ -22,36 +22,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript;
+package io.github.flibio.simplescript.commands;
 
-import io.github.flibio.simplescript.parsing.FileResolver;
-import io.github.flibio.simplescript.parsing.block.Event.EventType;
-import io.github.flibio.simplescript.parsing.variable.Variable;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.text.format.TextColors;
 
-public class Events {
+import io.github.flibio.simplescript.PluginInfo;
+import io.github.flibio.utils.commands.AsyncCommand;
+import io.github.flibio.utils.commands.BaseCommandExecutor;
+import io.github.flibio.utils.commands.Command;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.command.spec.CommandSpec.Builder;
+import org.spongepowered.api.text.Text;
 
-    private FileResolver resolver;
+@AsyncCommand
+@Command(aliases = {"simplescript", "ss"}, permission = "simplescript.admin.command")
+public class SimpleScriptCommand extends BaseCommandExecutor<CommandSource> {
 
-    public Events(FileResolver resolver) {
-        this.resolver = resolver;
+    @Override
+    public Builder getCommandSpecBuilder() {
+        return CommandSpec.builder()
+                .executor(this);
     }
 
-    @Listener
-    public void onJoin(ClientConnectionEvent.Join event) {
-        resolver.getEvents().get(EventType.JOIN).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity()));
-            e.run();
-        });
-    }
-
-    @Listener
-    public void onQuit(ClientConnectionEvent.Disconnect event) {
-        resolver.getEvents().get(EventType.QUIT).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity()));
-            e.run();
-        });
+    @Override
+    public void run(CommandSource src, CommandContext args) {
+        src.sendMessage(Text.of(TextColors.GREEN, "SimpleScript ", TextColors.WHITE, "v" + PluginInfo.VERSION));
+        src.sendMessage(Text.of(TextColors.GREEN, "Usage: ", TextColors.WHITE, "/simplescript reload"));
     }
 
 }

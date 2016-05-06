@@ -22,36 +22,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript;
+package io.github.flibio.simplescript.parsing.parser.variable;
 
-import io.github.flibio.simplescript.parsing.FileResolver;
-import io.github.flibio.simplescript.parsing.block.Event.EventType;
-import io.github.flibio.simplescript.parsing.variable.Variable;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+public enum VariableTypes implements VariableType {
 
-public class Events {
+    PLAYER {
 
-    private FileResolver resolver;
+        public boolean isValid(String var) {
+            return var.matches("^(the )?player$");
+        }
 
-    public Events(FileResolver resolver) {
-        this.resolver = resolver;
+        public String parse(String var) {
+            return "player";
+        }
     }
-
-    @Listener
-    public void onJoin(ClientConnectionEvent.Join event) {
-        resolver.getEvents().get(EventType.JOIN).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity()));
-            e.run();
-        });
-    }
-
-    @Listener
-    public void onQuit(ClientConnectionEvent.Disconnect event) {
-        resolver.getEvents().get(EventType.QUIT).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity()));
-            e.run();
-        });
-    }
-
 }

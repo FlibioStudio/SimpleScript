@@ -22,36 +22,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript;
+package io.github.flibio.simplescript.parsing.parser.variable;
 
-import io.github.flibio.simplescript.parsing.FileResolver;
-import io.github.flibio.simplescript.parsing.block.Event.EventType;
-import io.github.flibio.simplescript.parsing.variable.Variable;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+public class InvalidVariableException extends RuntimeException {
 
-public class Events {
+    private static final long serialVersionUID = 1L;
 
-    private FileResolver resolver;
-
-    public Events(FileResolver resolver) {
-        this.resolver = resolver;
+    public InvalidVariableException(String message) {
+        super(message);
     }
-
-    @Listener
-    public void onJoin(ClientConnectionEvent.Join event) {
-        resolver.getEvents().get(EventType.JOIN).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity()));
-            e.run();
-        });
-    }
-
-    @Listener
-    public void onQuit(ClientConnectionEvent.Disconnect event) {
-        resolver.getEvents().get(EventType.QUIT).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity()));
-            e.run();
-        });
-    }
-
 }

@@ -24,17 +24,17 @@
  */
 package io.github.flibio.simplescript.parsing;
 
-import io.github.flibio.simplescript.parsing.line.Line;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
 import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Event;
 import io.github.flibio.simplescript.parsing.block.Event.EventType;
+import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.BroadcastParser;
 import io.github.flibio.simplescript.parsing.parser.EventParser;
 import io.github.flibio.simplescript.parsing.parser.Parser;
+import io.github.flibio.simplescript.parsing.parser.SendParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +48,7 @@ import java.util.Optional;
 
 public class FileResolver {
 
-    private List<Parser<?>> parsers = Arrays.asList(new EventParser(), new BroadcastParser());
+    private List<Parser<?>> parsers = Arrays.asList(new EventParser(), new BroadcastParser(), new SendParser());
     private Map<Integer, Block> superBlocks = new HashMap<>();
     private Multimap<EventType, Event> events = HashMultimap.create();
 

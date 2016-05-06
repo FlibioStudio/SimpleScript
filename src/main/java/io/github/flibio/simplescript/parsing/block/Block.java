@@ -32,7 +32,7 @@ import java.util.Optional;
 
 public abstract class Block {
 
-    private List<Variable<?>> variables = new ArrayList<>();
+    private List<Variable> variables = new ArrayList<>();
     private List<Block> subBlocks = new ArrayList<>();
     private int indentLevel;
     private Block superBlock;
@@ -54,18 +54,28 @@ public abstract class Block {
         subBlocks.add(subBlock);
     }
 
-    public void addVariable(Variable<?> variable) {
+    public void addVariable(Variable variable) {
         variables.add(variable);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Optional<Variable<T>> getVariable(String name, Class<T> type) {
-        for (Variable<?> var : variables) {
+    public List<Variable> getVariables() {
+        return variables;
+    }
+
+    public Optional<Variable> getVariable(String name) {
+        for (Variable var : variables) {
             if (var.getName().equalsIgnoreCase(name)) {
-                if (var.getClass().equals(type)) {
-                    return Optional.of((Variable<T>) var);
+                return Optional.of(var);
+            }
+        }
+        Block curBlock = this;
+        while (curBlock != null) {
+            for (Variable var : curBlock.getVariables()) {
+                if (var.getName().equalsIgnoreCase(name)) {
+                    return Optional.of(var);
                 }
             }
+            curBlock = curBlock.getSuperBlock();
         }
         return Optional.empty();
     }
