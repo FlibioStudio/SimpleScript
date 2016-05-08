@@ -25,37 +25,38 @@
 package io.github.flibio.simplescript.parsing.parser.variable;
 
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
-import io.github.flibio.simplescript.parsing.variable.VariableFunction;
-import io.github.flibio.simplescript.parsing.variable.VariableType;
-import io.github.flibio.simplescript.parsing.variable.VariableTypes;
+import io.github.flibio.simplescript.parsing.variable.VariableProperties;
+import io.github.flibio.simplescript.parsing.variable.VariableProperty;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class InlineVariableParser {
+public class InlineVariablePropertyParser {
 
-    public static String getRegex() {
-        return "([a-zA-Z ]+)";
-    }
-
-    public static String parse(Tokenizer tokenizer, List<String> endChars, VariableFunction... functions) {
-        String variableString = "";
-        // Seperate the variable from the rest of the string
+    public static boolean isValid(String tokenizerData, List<String> endChars) {
+        final Tokenizer tokenizer = new Tokenizer(tokenizerData);
+        String propertyString = "";
+        // Seperate the property from the rest of the string
         String tokenValue = tokenizer.nextToken().getValue();
         while (!isEnd(endChars, tokenValue)) {
-            variableString += " " + tokenValue;
+            propertyString += " " + tokenValue;
             tokenValue = tokenizer.nextToken().getValue();
         }
-        // Parse the variable
-        variableString = variableString.trim();
-        for (VariableType vType : VariableTypes.values()) {
-            if (vType.getFunctions().containsAll(Arrays.asList(functions))) {
-                if (vType.isValid(variableString)) {
-                    return vType.parse(variableString);
-                }
-            }
+        // Parse the property
+        VariableProperty prop = VariableProperties.getEnum(propertyString.trim().toUpperCase().replaceAll(" ", "_"));
+        return prop != null;
+    }
+
+    public static ParsedProperty parse(Tokenizer tokenizer, List<String> endChars) {
+        String propertyString = "";
+        // Seperate the property from the rest of the string
+        String tokenValue = tokenizer.nextToken().getValue();
+        while (!isEnd(endChars, tokenValue)) {
+            propertyString += " " + tokenValue;
+            tokenValue = tokenizer.nextToken().getValue();
         }
-        throw new InvalidVariableException("'" + variableString + "' could not be parsed to a valid variable!");
+        // Parse the property
+        propertyString = propertyString.trim().toUpperCase().replaceAll(" ", "_");
+        return new ParsedProperty(VariableProperties.getEnum(propertyString), tokenizer);
     }
 
     private static boolean isEnd(List<String> endChars, String tokenValue) {
@@ -67,4 +68,22 @@ public class InlineVariableParser {
         return false;
     }
 
+    public static class ParsedProperty {
+
+        private VariableProperty result;
+        private Tokenizer tokenizer;
+
+        public ParsedProperty(VariableProperty result, Tokenizer tokenizer) {
+            this.result = result;
+            this.tokenizer = tokenizer;
+        }
+
+        public VariableProperty getProperty() {
+            return result;
+        }
+
+        public Tokenizer getTokenizer() {
+            return tokenizer;
+        }
+    }
 }

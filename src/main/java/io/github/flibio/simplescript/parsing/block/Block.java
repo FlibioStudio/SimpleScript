@@ -36,6 +36,7 @@ public abstract class Block {
     private List<Block> subBlocks = new ArrayList<>();
     private int indentLevel;
     private Block superBlock;
+    private boolean cancel;
 
     public Block(Block superBlock, int indentLevel) {
         this.superBlock = superBlock;
@@ -82,6 +83,14 @@ public abstract class Block {
 
     public int getIndentLevel() {
         return indentLevel;
+    }
+
+    public void setCancelled(boolean toCancel) {
+        cancel = toCancel;
+    }
+
+    public boolean isCancelled() {
+        return cancel;
     }
 
     public abstract void run();

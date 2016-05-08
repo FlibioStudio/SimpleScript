@@ -61,4 +61,8 @@ public class Tokenizer {
         // The string could not be parsed to a token
         throw new InvalidTokenException("Invalid token found in '" + string + "'");
     }
+
+    public String getData() {
+        return string.trim();
+    }
 }

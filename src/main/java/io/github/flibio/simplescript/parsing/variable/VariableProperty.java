@@ -22,18 +22,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript.parsing.parser.variable;
+package io.github.flibio.simplescript.parsing.variable;
 
-public enum VariableTypes implements VariableType {
+public interface VariableProperty {
 
-    PLAYER {
-
-        public boolean isValid(String var) {
-            return var.matches("^(the )?player$");
-        }
-
-        public String parse(String var) {
-            return "player";
-        }
-    }
+    public String getValue(Object obj);
 }

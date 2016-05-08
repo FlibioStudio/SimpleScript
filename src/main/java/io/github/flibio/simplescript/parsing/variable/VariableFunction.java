@@ -22,17 +22,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript.parsing.parser.variable;
+package io.github.flibio.simplescript.parsing.variable;
 
-import java.util.Arrays;
-import java.util.List;
+public interface VariableFunction {
 
-public enum VariableFunctions implements VariableFunction {
-
-    MESSAGE_RECEIVER {
-
-        public List<VariableType> getTypes() {
-            return Arrays.asList(VariableTypes.PLAYER);
-        }
-    }
+    public boolean perform(Object obj, String input);
 }

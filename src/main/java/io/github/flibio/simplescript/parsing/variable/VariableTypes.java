@@ -22,11 +22,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript.parsing.parser.variable;
+package io.github.flibio.simplescript.parsing.variable;
 
-public interface VariableType {
+import java.util.Arrays;
+import java.util.List;
 
-    public boolean isValid(String var);
+public enum VariableTypes implements VariableType {
 
-    public String parse(String var);
+    PLAYER {
+
+        public boolean isValid(String var) {
+            return var.matches("^(the )?player$");
+        }
+
+        public String parse(String var) {
+            return "player";
+        }
+
+        public List<VariableProperty> getProperties() {
+            return Arrays.asList(VariableProperties.DISPLAY_NAME);
+        }
+
+        public List<VariableFunction> getFunctions() {
+            return Arrays.asList(VariableFunctions.SEND_MESSAGE, VariableFunctions.PERMISSION);
+        }
+    };
+
+    public static VariableType getEnum(String input) {
+        for (VariableType value : values()) {
+            if (value.toString().equalsIgnoreCase(input.replaceAll(" ", "_")))
+                return value;
+        }
+        return null;
+    }
 }

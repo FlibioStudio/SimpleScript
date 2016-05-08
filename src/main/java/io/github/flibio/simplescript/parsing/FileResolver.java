@@ -32,6 +32,7 @@ import io.github.flibio.simplescript.parsing.block.Event;
 import io.github.flibio.simplescript.parsing.block.Event.EventType;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.BroadcastParser;
+import io.github.flibio.simplescript.parsing.parser.ConditionalParser;
 import io.github.flibio.simplescript.parsing.parser.EventParser;
 import io.github.flibio.simplescript.parsing.parser.Parser;
 import io.github.flibio.simplescript.parsing.parser.SendParser;
@@ -48,7 +49,7 @@ import java.util.Optional;
 
 public class FileResolver {
 
-    private List<Parser<?>> parsers = Arrays.asList(new EventParser(), new BroadcastParser(), new SendParser());
+    private List<Parser<?>> parsers = Arrays.asList(new EventParser(), new BroadcastParser(), new SendParser(), new ConditionalParser());
     private Map<Integer, Block> superBlocks = new HashMap<>();
     private Multimap<EventType, Event> events = HashMultimap.create();
 

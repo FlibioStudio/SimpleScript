@@ -25,8 +25,7 @@
 package io.github.flibio.simplescript.parsing.block;
 
 import io.github.flibio.simplescript.parsing.variable.Variable;
-import org.spongepowered.api.text.channel.MessageReceiver;
-import org.spongepowered.api.text.serializer.TextSerializers;
+import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
 
 import java.util.Optional;
 
@@ -50,8 +49,11 @@ public class Send extends Block {
         Optional<Variable> vOpt = getVariable(target);
         if (vOpt.isPresent()) {
             Variable var = vOpt.get();
-            if (var.getValue() instanceof MessageReceiver) {
-                ((MessageReceiver) var.getValue()).sendMessage(TextSerializers.FORMATTING_CODE.deserialize(msg));
+            if (var.getType().getFunctions().contains(VariableFunctions.SEND_MESSAGE)) {
+                VariableFunctions.SEND_MESSAGE.perform(var.getValue(), msg);
+            }
+            if (var.getType().getFunctions().contains(VariableFunctions.GROUP_SEND_MESSAGE)) {
+                VariableFunctions.GROUP_SEND_MESSAGE.perform(var.getValue(), msg);
             }
         }
     }

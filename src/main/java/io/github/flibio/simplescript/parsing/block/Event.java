@@ -44,8 +44,14 @@ public class Event extends Block {
     @Override
     public void run() {
         for (Block subBlock : getSubBlocks()) {
+            if (isCancelled())
+                break;
             subBlock.run();
         }
+        // Reset the cancellation
+        setCancelled(false);
+        for (Block subBlock : getSubBlocks()) {
+            subBlock.setCancelled(false);
+        }
     }
-
 }

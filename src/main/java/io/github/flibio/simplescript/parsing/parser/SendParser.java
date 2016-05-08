@@ -24,8 +24,9 @@
  */
 package io.github.flibio.simplescript.parsing.parser;
 
-import io.github.flibio.simplescript.parsing.parser.variable.VariableFunctions;
+import java.util.Arrays;
 
+import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
 import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Send;
 import io.github.flibio.simplescript.parsing.line.Line;
@@ -49,7 +50,7 @@ public class SendParser implements Parser<Send> {
 
             tokenizer.nextToken();
 
-            String target = InlineVariableParser.parse(tokenizer, "", VariableFunctions.MESSAGE_RECEIVER);
+            String target = InlineVariableParser.parse(tokenizer, Arrays.asList(""), VariableFunctions.SEND_MESSAGE);
             return new Send(superBlock, line.getIndentLevel(), msg, target);
         }
         throw new InvalidParseStringException(line.getData() + " could not be parsed as a send!");

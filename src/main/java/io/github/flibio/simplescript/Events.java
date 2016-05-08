@@ -24,6 +24,8 @@
  */
 package io.github.flibio.simplescript;
 
+import io.github.flibio.simplescript.parsing.variable.VariableTypes;
+
 import io.github.flibio.simplescript.parsing.FileResolver;
 import io.github.flibio.simplescript.parsing.block.Event.EventType;
 import io.github.flibio.simplescript.parsing.variable.Variable;
@@ -41,7 +43,7 @@ public class Events {
     @Listener
     public void onJoin(ClientConnectionEvent.Join event) {
         resolver.getEvents().get(EventType.JOIN).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity()));
+            e.addVariable(new Variable("player", event.getTargetEntity().getUniqueId(), VariableTypes.PLAYER));
             e.run();
         });
     }
@@ -49,7 +51,7 @@ public class Events {
     @Listener
     public void onQuit(ClientConnectionEvent.Disconnect event) {
         resolver.getEvents().get(EventType.QUIT).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity()));
+            e.addVariable(new Variable("player", event.getTargetEntity().getUniqueId(), VariableTypes.PLAYER));
             e.run();
         });
     }

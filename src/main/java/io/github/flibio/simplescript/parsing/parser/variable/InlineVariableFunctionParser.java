@@ -26,36 +26,37 @@ package io.github.flibio.simplescript.parsing.parser.variable;
 
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
 import io.github.flibio.simplescript.parsing.variable.VariableFunction;
-import io.github.flibio.simplescript.parsing.variable.VariableType;
-import io.github.flibio.simplescript.parsing.variable.VariableTypes;
+import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class InlineVariableParser {
+public class InlineVariableFunctionParser {
 
-    public static String getRegex() {
-        return "([a-zA-Z ]+)";
-    }
-
-    public static String parse(Tokenizer tokenizer, List<String> endChars, VariableFunction... functions) {
-        String variableString = "";
-        // Seperate the variable from the rest of the string
+    public static boolean isValid(String tokenizerData, List<String> endChars) {
+        Tokenizer tokenizer = new Tokenizer(tokenizerData);
+        String functionString = "";
+        // Seperate the function from the rest of the string
         String tokenValue = tokenizer.nextToken().getValue();
         while (!isEnd(endChars, tokenValue)) {
-            variableString += " " + tokenValue;
+            functionString += " " + tokenValue;
             tokenValue = tokenizer.nextToken().getValue();
         }
-        // Parse the variable
-        variableString = variableString.trim();
-        for (VariableType vType : VariableTypes.values()) {
-            if (vType.getFunctions().containsAll(Arrays.asList(functions))) {
-                if (vType.isValid(variableString)) {
-                    return vType.parse(variableString);
-                }
-            }
+        // Parse the function
+        VariableFunction func = VariableFunctions.getEnum(functionString.trim().toUpperCase().replaceAll(" ", "_"));
+        return func != null;
+    }
+
+    public static ParsedFunction parse(Tokenizer tokenizer, List<String> endChars) {
+        String functionString = "";
+        // Seperate the function from the rest of the string
+        String tokenValue = tokenizer.nextToken().getValue();
+        while (!isEnd(endChars, tokenValue)) {
+            functionString += " " + tokenValue;
+            tokenValue = tokenizer.nextToken().getValue();
         }
-        throw new InvalidVariableException("'" + variableString + "' could not be parsed to a valid variable!");
+        // Parse the function
+        functionString = functionString.trim().toUpperCase().replaceAll(" ", "_");
+        return new ParsedFunction(VariableFunctions.getEnum(functionString), tokenizer);
     }
 
     private static boolean isEnd(List<String> endChars, String tokenValue) {
@@ -65,6 +66,25 @@ public class InlineVariableParser {
             }
         }
         return false;
+    }
+
+    public static class ParsedFunction {
+
+        private VariableFunction result;
+        private Tokenizer tokenizer;
+
+        public ParsedFunction(VariableFunction result, Tokenizer tokenizer) {
+            this.result = result;
+            this.tokenizer = tokenizer;
+        }
+
+        public VariableFunction getFunction() {
+            return result;
+        }
+
+        public Tokenizer getTokenizer() {
+            return tokenizer;
+        }
     }
 
 }
