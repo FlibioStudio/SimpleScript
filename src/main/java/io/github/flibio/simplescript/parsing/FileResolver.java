@@ -55,7 +55,10 @@ public class FileResolver {
 
     protected FileResolver(List<Line> lines) {
 
-        lines.forEach(line -> {
+        for (Line line : lines) {
+            // Skip lines that are commented
+            if (line.getData().length() >= 1 && line.getData().substring(0, 1).equals("#"))
+                continue;
             for (Parser<?> parser : parsers) {
                 if (parser.canParse(line)) {
                     int indent = line.getIndentLevel();
@@ -74,7 +77,7 @@ public class FileResolver {
                     }
                 }
             }
-        });
+        }
     }
 
     public Multimap<EventType, Event> getEvents() {
