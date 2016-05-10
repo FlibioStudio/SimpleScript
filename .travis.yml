@@ -1,0 +1,18 @@
+language: java
+jdk:
+- oraclejdk8
+install:
+- mkdir travis-phantomjs   
+- wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2   
+- tar -xvf $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -C $PWD/travis-phantomjs   
+- export PATH=$PWD/travis-phantomjs:$PATH
+- gradle build
+script:
+- chmod +x ./gradlew
+after_success:
+- 'if [ ${TRAVIS_PULL_REQUEST} != "false" ]; then exit; fi'
+- 'if [ -z ${TRAVIS_TAG} ]; then exit; fi'
+- 'mv ${HOME}/build/${TRAVIS_REPO_SLUG}/build/libs/SimpleScript-{${TRAVIS_TAG}-all,${TRAVIS_TAG}}.jar'
+- 'wc -c ${HOME}/build/${TRAVIS_REPO_SLUG}/build/libs/SimpleScript-${TRAVIS_TAG}.jar'
+- 'curl -v -X POST -d "{\"tag_name\": \"${TRAVIS_TAG}\",\"target_commitish\": \"master\",\"name\": \"SimpleScript ${TRAVIS_TAG}\"}" --header "Content-Type:application/json" -u Flibio:${GITHUB_OAUTH} "https://api.github.com/repos/FlibioStudio/SimpleScript/releases"'
+- 'curl -v -X POST --data-binary @${HOME}/build/${TRAVIS_REPO_SLUG}/build/libs/SimpleScript-${TRAVIS_TAG}.jar --header "Content-Type:application/octet-stream" -u Flibio:${GITHUB_OAUTH} "https://uploads.github.com/repos/FlibioStudio/SimpleScript/releases/$(phantomjs getid.js)/assets?name=SimpleScript-${TRAVIS_TAG}.jar"'
