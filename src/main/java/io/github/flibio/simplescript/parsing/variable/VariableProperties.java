@@ -24,39 +24,77 @@
  */
 package io.github.flibio.simplescript.parsing.variable;
 
+import org.spongepowered.api.command.source.LocatedSource;
+
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.LocateableSnapshot;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Represents a property that is stored on a variable.
  */
-public enum VariableProperties implements VariableProperty {
+public class VariableProperties {
 
-    DISPLAY_NAME {
+    public static final VariableProperty<String> DISPLAY_NAME = new VariableProperty<String>() {
 
-        public String getValue(Object rObj) {
+        public Optional<String> getValue(Object rObj) {
             Object obj = parseUUID(rObj);
             if (obj instanceof DataHolder) {
                 Optional<Text> tOpt = ((DataHolder) obj).get(Keys.DISPLAY_NAME);
-                return tOpt.isPresent() ? tOpt.get().toPlain() : "error";
+                return tOpt.isPresent() ? Optional.of(tOpt.get().toPlain()) : Optional.empty();
             }
-            return "error";
+            return Optional.empty();
+        }
+
+        public String getId() {
+            return "display name";
         }
 
     };
 
-    public static VariableProperty getEnum(String input) {
-        for (VariableProperty value : values()) {
-            if (value.toString().equalsIgnoreCase(input.replaceAll(" ", "_")))
-                return value;
+    public static final VariableProperty<Location<World>> LOCATION = new VariableProperty<Location<World>>() {
+
+        public Optional<Location<World>> getValue(Object rObj) {
+            Object obj = parseUUID(rObj);
+            if (obj instanceof LocateableSnapshot) {
+                return ((LocateableSnapshot<?>) obj).getLocation();
+            }
+            if (obj instanceof LocatedSource) {
+                return Optional.of(((LocatedSource) obj).getLocation());
+            }
+            return Optional.empty();
+        }
+
+        public String getId() {
+            return "location";
+        }
+
+    };
+
+    public static List<VariableProperty<?>> values() {
+        return Arrays.asList(DISPLAY_NAME, LOCATION);
+    }
+
+    public static VariableProperty<?> valueOf(String valueOf) {
+        for (VariableProperty<?> prop : values()) {
+            if (prop.getId().equalsIgnoreCase(valueOf.replaceAll("_", " ").trim())) {
+                return prop;
+            }
         }
         return null;
+    }
+
+    private VariableProperties() {
     }
 
     private static Object parseUUID(Object obj) {

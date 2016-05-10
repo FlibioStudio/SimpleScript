@@ -24,12 +24,14 @@
  */
 package io.github.flibio.simplescript;
 
-import io.github.flibio.simplescript.parsing.variable.VariableTypes;
-
 import io.github.flibio.simplescript.parsing.FileResolver;
 import io.github.flibio.simplescript.parsing.block.Event.EventType;
 import io.github.flibio.simplescript.parsing.variable.Variable;
+import io.github.flibio.simplescript.parsing.variable.VariableTypes;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 public class Events {
@@ -54,6 +56,17 @@ public class Events {
             e.addVariable(new Variable("player", event.getTargetEntity().getUniqueId(), VariableTypes.PLAYER));
             e.run();
         });
+    }
+
+    @Listener
+    public void onBreak(ChangeBlockEvent.Break event, @First Player player) {
+        if (event.getTransactions().size() > 0) {
+            resolver.getEvents().get(EventType.BREAK).forEach(e -> {
+                e.addVariable(new Variable("player", player.getUniqueId(), VariableTypes.PLAYER));
+                e.addVariable(new Variable("block", event.getTransactions().get(0).getOriginal(), VariableTypes.BLOCK));
+                e.run();
+            });
+        }
     }
 
 }

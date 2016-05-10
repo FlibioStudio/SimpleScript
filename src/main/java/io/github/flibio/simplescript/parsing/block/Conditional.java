@@ -33,14 +33,14 @@ import java.util.Optional;
 public class Conditional extends Block {
 
     private String varName;
-    private String expectedValue;
+    private Object expectedValue;
 
-    private VariableProperty prop;
+    private VariableProperty<?> prop;
 
     private VariableFunction func;
     private String input;
 
-    public Conditional(Block superBlock, int indentLevel, String variableName, VariableProperty prop, String expectedValue) {
+    public Conditional(Block superBlock, int indentLevel, String variableName, VariableProperty<?> prop, Object expectedValue) {
         super(superBlock, indentLevel);
         this.varName = variableName;
         this.prop = prop;
@@ -62,15 +62,17 @@ public class Conditional extends Block {
             Variable variable = vOpt.get();
             if (prop != null) {
                 if (variable.getType().getProperties().contains(prop)) {
-                    String propValue = prop.getValue(variable.getValue());
-                    if (!propValue.trim().equals(expectedValue.trim())) {
-                        getSuperBlock().setCancelled(true);
+                    Optional<?> oOpt = prop.getValue(variable.getValue());
+                    if (oOpt.isPresent()) {
+                        if (!oOpt.get().equals(expectedValue)) {
+                            getSuperBlock().setCancelled(true);
+                        }
                     }
                 }
             } else if (func != null) {
                 if (variable.getType().getFunctions().contains(func)) {
                     boolean funcReturn = func.perform(variable.getValue(), input);
-                    if (funcReturn != Boolean.parseBoolean(expectedValue)) {
+                    if (funcReturn != Boolean.parseBoolean(expectedValue.toString())) {
                         getSuperBlock().setCancelled(true);
                     }
                 }

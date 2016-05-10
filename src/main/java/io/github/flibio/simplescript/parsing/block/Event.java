@@ -27,7 +27,7 @@ package io.github.flibio.simplescript.parsing.block;
 public class Event extends Block {
 
     public enum EventType {
-        JOIN, QUIT
+        JOIN, QUIT, BREAK
     }
 
     private EventType type;

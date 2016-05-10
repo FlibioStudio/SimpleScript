@@ -24,7 +24,11 @@
  */
 package io.github.flibio.simplescript.parsing.variable;
 
-public interface VariableProperty {
+import java.util.Optional;
 
-    public String getValue(Object obj);
+public interface VariableProperty<T> {
+
+    public Optional<T> getValue(Object obj);
+
+    public String getId();
 }

@@ -55,7 +55,7 @@ public class InlineVariableParser {
                 }
             }
         }
-        throw new InvalidVariableException("'" + variableString + "' could not be parsed to a valid variable!");
+        throw new VariableException("'" + variableString + "' could not be parsed to a valid variable!");
     }
 
     private static boolean isEnd(List<String> endChars, String tokenValue) {

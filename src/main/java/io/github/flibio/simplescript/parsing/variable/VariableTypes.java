@@ -39,18 +39,37 @@ public enum VariableTypes implements VariableType {
             return "player";
         }
 
-        public List<VariableProperty> getProperties() {
-            return Arrays.asList(VariableProperties.DISPLAY_NAME);
+        public List<VariableProperty<?>> getProperties() {
+            return Arrays.asList(VariableProperties.DISPLAY_NAME, VariableProperties.LOCATION);
         }
 
         public List<VariableFunction> getFunctions() {
             return Arrays.asList(VariableFunctions.SEND_MESSAGE, VariableFunctions.PERMISSION);
         }
+    },
+
+    BLOCK {
+
+        public boolean isValid(String var) {
+            return var.matches("^(the )?block$");
+        }
+
+        public String parse(String var) {
+            return "block";
+        }
+
+        public List<VariableProperty<?>> getProperties() {
+            return Arrays.asList(VariableProperties.LOCATION);
+        }
+
+        public List<VariableFunction> getFunctions() {
+            return Arrays.asList();
+        }
     };
 
     public static VariableType getEnum(String input) {
         for (VariableType value : values()) {
-            if (value.toString().equalsIgnoreCase(input.replaceAll(" ", "_")))
+            if (value.toString().equalsIgnoreCase(input.replaceAll(" ", "_").trim()))
                 return value;
         }
         return null;

@@ -42,7 +42,7 @@ public class InlineVariablePropertyParser {
             tokenValue = tokenizer.nextToken().getValue();
         }
         // Parse the property
-        VariableProperty prop = VariableProperties.getEnum(propertyString.trim().toUpperCase().replaceAll(" ", "_"));
+        VariableProperty<?> prop = VariableProperties.valueOf(propertyString);
         return prop != null;
     }
 
@@ -56,7 +56,7 @@ public class InlineVariablePropertyParser {
         }
         // Parse the property
         propertyString = propertyString.trim().toUpperCase().replaceAll(" ", "_");
-        return new ParsedProperty(VariableProperties.getEnum(propertyString), tokenizer);
+        return new ParsedProperty(VariableProperties.valueOf(propertyString), tokenizer);
     }
 
     private static boolean isEnd(List<String> endChars, String tokenValue) {
@@ -70,15 +70,15 @@ public class InlineVariablePropertyParser {
 
     public static class ParsedProperty {
 
-        private VariableProperty result;
+        private VariableProperty<?> result;
         private Tokenizer tokenizer;
 
-        public ParsedProperty(VariableProperty result, Tokenizer tokenizer) {
+        public ParsedProperty(VariableProperty<?> result, Tokenizer tokenizer) {
             this.result = result;
             this.tokenizer = tokenizer;
         }
 
-        public VariableProperty getProperty() {
+        public VariableProperty<?> getProperty() {
             return result;
         }
 

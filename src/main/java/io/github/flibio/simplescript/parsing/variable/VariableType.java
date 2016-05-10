@@ -32,7 +32,7 @@ public interface VariableType {
 
     public String parse(String var);
 
-    public List<VariableProperty> getProperties();
+    public List<VariableProperty<?>> getProperties();
 
     public List<VariableFunction> getFunctions();
 }

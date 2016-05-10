@@ -24,11 +24,11 @@
  */
 package io.github.flibio.simplescript.parsing.parser.variable;
 
-public class InvalidVariableException extends RuntimeException {
+public class VariableException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public InvalidVariableException(String message) {
+    public VariableException(String message) {
         super(message);
     }
 }
