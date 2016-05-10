@@ -22,44 +22,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript.parsing.block;
+package io.github.flibio.simplescript.parsing.parser;
 
-public class Event extends Block {
+import io.github.flibio.simplescript.parsing.block.Block;
+import io.github.flibio.simplescript.parsing.block.Cancel;
+import io.github.flibio.simplescript.parsing.line.Line;
 
-    public enum EventType {
-        JOIN, QUIT, BREAK
-    }
+public class CancelParser implements Parser<Cancel> {
 
-    private EventType type;
-
-    public Event(Block superBlock, int indentLevel, EventType eventType) {
-        super(superBlock, indentLevel);
-        this.type = eventType;
-    }
-
-    public EventType getType() {
-        return type;
-    }
-
-    public boolean runEvent() {
-        boolean cancelled = false;
-        for (Block subBlock : getSubBlocks()) {
-            if (isCancelled()) {
-                cancelled = true;
-                break;
-            }
-            subBlock.run();
-        }
-        // Reset the cancellation
-        setCancelled(false);
-        for (Block subBlock : getSubBlocks()) {
-            subBlock.setCancelled(false);
-        }
-        return cancelled;
+    @Override
+    public boolean canParse(Line line) {
+        return line.getData().trim().matches("cancel");
     }
 
     @Override
-    public void run() {
-        runEvent();
+    public Cancel parse(Block superBlock, Line line) {
+        if (canParse(line)) {
+            return new Cancel(superBlock, line.getIndentLevel());
+        }
+        throw new InvalidParseStringException(line.getData() + " could not be parsed as a cancel!");
     }
+
 }

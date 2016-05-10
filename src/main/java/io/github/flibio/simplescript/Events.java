@@ -64,7 +64,7 @@ public class Events {
             resolver.getEvents().get(EventType.BREAK).forEach(e -> {
                 e.addVariable(new Variable("player", player.getUniqueId(), VariableTypes.PLAYER));
                 e.addVariable(new Variable("block", event.getTransactions().get(0).getOriginal(), VariableTypes.BLOCK));
-                e.run();
+                event.setCancelled(e.runEvent());
             });
         }
     }
