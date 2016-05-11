@@ -27,8 +27,6 @@ package io.github.flibio.simplescript.parsing.parser;
 import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Conditional;
 import io.github.flibio.simplescript.parsing.line.Line;
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableFunctionParser;
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableFunctionParser.ParsedFunction;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariablePropertyParser;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariablePropertyParser.ParsedProperty;
@@ -51,12 +49,7 @@ public class ConditionalParser implements Parser<Conditional> {
 
             String var = InlineVariableParser.parse(tokenizer, Arrays.asList("has", "have"));
 
-            if (InlineVariableFunctionParser.isValid(tokenizer.getData(), Arrays.asList("of"))) {
-                ParsedFunction parsed = InlineVariableFunctionParser.parse(tokenizer, Arrays.asList("of"));
-                tokenizer = parsed.getTokenizer();
-                String value = tokenizer.nextToken().getValue();
-                return new Conditional(superBlock, line.getIndentLevel(), var, parsed.getFunction(), value, true);
-            } else if (InlineVariablePropertyParser.isValid(tokenizer.getData(), Arrays.asList("of"))) {
+            if (InlineVariablePropertyParser.isValid(tokenizer.getData(), Arrays.asList("of"))) {
                 ParsedProperty parsed = InlineVariablePropertyParser.parse(tokenizer, Arrays.asList("of"));
                 tokenizer = parsed.getTokenizer();
                 String value = tokenizer.nextToken().getValue();

@@ -30,5 +30,10 @@ public interface VariableProperty<T> {
 
     public Optional<T> getValue(Object obj);
 
+    public default boolean test(Object obj, Object expected) {
+        Optional<?> optional = getValue(obj);
+        return optional.isPresent() ? optional.get().equals(expected) : false;
+    }
+
     public String getId();
 }

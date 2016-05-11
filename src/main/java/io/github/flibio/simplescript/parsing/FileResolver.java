@@ -27,6 +27,7 @@ package io.github.flibio.simplescript.parsing;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
+import io.github.flibio.simplescript.SimpleScript;
 import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Event;
 import io.github.flibio.simplescript.parsing.block.Event.EventType;
@@ -37,6 +38,7 @@ import io.github.flibio.simplescript.parsing.parser.ConditionalParser;
 import io.github.flibio.simplescript.parsing.parser.EventParser;
 import io.github.flibio.simplescript.parsing.parser.Parser;
 import io.github.flibio.simplescript.parsing.parser.SendParser;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,35 +52,48 @@ import java.util.Optional;
 
 public class FileResolver {
 
+    private Logger logger = SimpleScript.getInstance().getLogger();
+
     private List<Parser<?>> parsers = Arrays.asList(new EventParser(), new BroadcastParser(), new SendParser(), new ConditionalParser(),
             new CancelParser());
     private Map<Integer, Block> superBlocks = new HashMap<>();
     private Multimap<EventType, Event> events = HashMultimap.create();
 
     protected FileResolver(List<Line> lines) {
+        int lineNumber = 1;
 
         for (Line line : lines) {
             // Skip lines that are commented
             if (line.getData().length() >= 1 && line.getData().substring(0, 1).equals("#"))
                 continue;
+            boolean parsed = false;
             for (Parser<?> parser : parsers) {
-                if (parser.canParse(line)) {
-                    int indent = line.getIndentLevel();
-                    // Parse the line and set the superblock
-                    Block superBlock = superBlocks.get(indent - 1);
-                    Block block = parser.parse(superBlock, line);
-                    if (superBlock != null) {
-                        superBlock.addSubBlock(block);
+                try {
+                    if (parser.canParse(line)) {
+                        int indent = line.getIndentLevel();
+                        // Parse the line and set the superblock
+                        Block superBlock = superBlocks.get(indent - 1);
+                        Block block = parser.parse(superBlock, line);
+                        if (superBlock != null) {
+                            superBlock.addSubBlock(block);
+                        }
+                        // Set the current superblock for this line indent
+                        superBlocks.put(indent, block);
+                        if (block instanceof Event) {
+                            // Add the event to the event list
+                            Event event = (Event) block;
+                            events.put(event.getType(), event);
+                        }
+                        parsed = true;
                     }
-                    // Set the current superblock for this line indent
-                    superBlocks.put(indent, block);
-                    if (block instanceof Event) {
-                        // Add the event to the event list
-                        Event event = (Event) block;
-                        events.put(event.getType(), event);
-                    }
+                } catch (Exception e) {
+                    parsed = false;
                 }
             }
+            if (!parsed) {
+                logger.error("Line '" + line.getData() + "'[" + lineNumber + "] could not be parsed!");
+            }
+            lineNumber++;
         }
     }
 

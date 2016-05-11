@@ -24,6 +24,9 @@
  */
 package io.github.flibio.simplescript;
 
+import com.google.inject.Inject;
+import org.slf4j.Logger;
+
 import io.github.flibio.simplescript.commands.ReloadCommand;
 import io.github.flibio.simplescript.commands.SimpleScriptCommand;
 import io.github.flibio.simplescript.parsing.FileResolver;
@@ -41,6 +44,8 @@ import java.io.File;
 @Plugin(id = PluginInfo.ID, name = PluginInfo.NAME, version = PluginInfo.VERSION, description = PluginInfo.DESCRIPTION)
 public class SimpleScript {
 
+    @Inject private Logger logger;
+
     private static SimpleScript access;
 
     @Listener
@@ -51,6 +56,14 @@ public class SimpleScript {
         CommandLoader.registerCommands(this, "&cYou must be a {sourcetype} to use this command!",
                 new SimpleScriptCommand(),
                 new ReloadCommand());
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public static SimpleScript getInstance() {
+        return access;
     }
 
     public static void reload(FileResolver resolver) {

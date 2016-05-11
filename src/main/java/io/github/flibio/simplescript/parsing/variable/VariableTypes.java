@@ -40,11 +40,11 @@ public enum VariableTypes implements VariableType {
         }
 
         public List<VariableProperty<?>> getProperties() {
-            return Arrays.asList(VariableProperties.DISPLAY_NAME, VariableProperties.LOCATION);
+            return Arrays.asList(VariableProperties.DISPLAY_NAME, VariableProperties.LOCATION, VariableProperties.PERMISSION);
         }
 
         public List<VariableFunction> getFunctions() {
-            return Arrays.asList(VariableFunctions.SEND_MESSAGE, VariableFunctions.PERMISSION);
+            return Arrays.asList(VariableFunctions.SEND_MESSAGE);
         }
     },
 

@@ -24,8 +24,9 @@
  */
 package io.github.flibio.simplescript.parsing.variable;
 
-import org.spongepowered.api.command.source.LocatedSource;
+import org.spongepowered.api.service.permission.Subject;
 
+import org.spongepowered.api.command.source.LocatedSource;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.LocateableSnapshot;
@@ -81,8 +82,29 @@ public class VariableProperties {
 
     };
 
+    public static final VariableProperty<Boolean> PERMISSION = new VariableProperty<Boolean>() {
+
+        public Optional<Boolean> getValue(Object rObj) {
+            return Optional.of(false);
+        }
+
+        @Override
+        public boolean test(Object rObj, Object expected) {
+            Object obj = parseUUID(rObj);
+            if (obj instanceof Subject) {
+                return ((Subject) obj).hasPermission(expected.toString());
+            }
+            return false;
+        }
+
+        public String getId() {
+            return "permission";
+        }
+
+    };
+
     public static List<VariableProperty<?>> values() {
-        return Arrays.asList(DISPLAY_NAME, LOCATION);
+        return Arrays.asList(DISPLAY_NAME, LOCATION, PERMISSION);
     }
 
     public static VariableProperty<?> valueOf(String valueOf) {

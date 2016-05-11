@@ -25,7 +25,6 @@
 package io.github.flibio.simplescript.parsing.block;
 
 import io.github.flibio.simplescript.parsing.variable.Variable;
-import io.github.flibio.simplescript.parsing.variable.VariableFunction;
 import io.github.flibio.simplescript.parsing.variable.VariableProperty;
 
 import java.util.Optional;
@@ -37,9 +36,6 @@ public class Conditional extends Block {
 
     private VariableProperty<?> prop;
 
-    private VariableFunction func;
-    private String input;
-
     public Conditional(Block superBlock, int indentLevel, String variableName, VariableProperty<?> prop, Object expectedValue) {
         super(superBlock, indentLevel);
         this.varName = variableName;
@@ -47,34 +43,16 @@ public class Conditional extends Block {
         this.expectedValue = expectedValue;
     }
 
-    public Conditional(Block superBlock, int indentLevel, String variableName, VariableFunction func, String input, boolean expectedValue) {
-        super(superBlock, indentLevel);
-        this.varName = variableName;
-        this.func = func;
-        this.input = input;
-        this.expectedValue = Boolean.toString(expectedValue);
-    }
-
     @Override
     public void run() {
         Optional<Variable> vOpt = getVariable(varName);
         if (vOpt.isPresent()) {
             Variable variable = vOpt.get();
-            if (prop != null) {
-                if (variable.getType().getProperties().contains(prop)) {
-                    Optional<?> oOpt = prop.getValue(variable.getValue());
-                    if (oOpt.isPresent()) {
-                        if (!oOpt.get().equals(expectedValue)) {
-                            getSuperBlock().setCancelled(true);
-                        }
-                    }
-                }
-            } else if (func != null) {
-                if (variable.getType().getFunctions().contains(func)) {
-                    boolean funcReturn = func.perform(variable.getValue(), input);
-                    if (funcReturn != Boolean.parseBoolean(expectedValue.toString())) {
-                        getSuperBlock().setCancelled(true);
-                    }
+            System.out.println("step 1");
+            if (variable.getType().getProperties().contains(prop)) {
+                System.out.println("comparing " + variable.getValue() + " to " + expectedValue);
+                if (!prop.test(variable.getValue(), expectedValue)) {
+                    getSuperBlock().setCancelled(true);
                 }
             }
         }

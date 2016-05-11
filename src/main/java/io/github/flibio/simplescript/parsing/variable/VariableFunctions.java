@@ -26,7 +26,6 @@ package io.github.flibio.simplescript.parsing.variable;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
@@ -63,17 +62,6 @@ public enum VariableFunctions implements VariableFunction {
                         return true;
                     }
                 }
-            }
-            return false;
-        }
-    },
-
-    PERMISSION {
-
-        public boolean perform(Object rObj, String input) {
-            Object obj = parseUUID(rObj);
-            if (obj instanceof Subject) {
-                return ((Subject) obj).hasPermission(input);
             }
             return false;
         }
