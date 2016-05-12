@@ -48,9 +48,7 @@ public class Conditional extends Block {
         Optional<Variable> vOpt = getVariable(varName);
         if (vOpt.isPresent()) {
             Variable variable = vOpt.get();
-            System.out.println("step 1");
             if (variable.getType().getProperties().contains(prop)) {
-                System.out.println("comparing " + variable.getValue() + " to " + expectedValue);
                 if (!prop.test(variable.getValue(), expectedValue)) {
                     getSuperBlock().setCancelled(true);
                 }

@@ -24,14 +24,14 @@
  */
 package io.github.flibio.simplescript.parsing.variable;
 
-import org.spongepowered.api.service.permission.Subject;
-
-import org.spongepowered.api.command.source.LocatedSource;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.command.source.LocatedSource;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.LocateableSnapshot;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -103,8 +103,23 @@ public class VariableProperties {
 
     };
 
+    public static final VariableProperty<String> BLOCK_TYPE = new VariableProperty<String>() {
+
+        public Optional<String> getValue(Object obj) {
+            if (obj instanceof BlockSnapshot) {
+                return Optional.of(((BlockSnapshot) obj).getState().getType().getName());
+            }
+            return Optional.empty();
+        }
+
+        public String getId() {
+            return "block type";
+        }
+
+    };
+
     public static List<VariableProperty<?>> values() {
-        return Arrays.asList(DISPLAY_NAME, LOCATION, PERMISSION);
+        return Arrays.asList(DISPLAY_NAME, LOCATION, PERMISSION, BLOCK_TYPE);
     }
 
     public static VariableProperty<?> valueOf(String valueOf) {

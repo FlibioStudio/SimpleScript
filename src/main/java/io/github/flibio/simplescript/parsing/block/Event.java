@@ -55,6 +55,7 @@ public class Event extends Block {
         for (Block subBlock : getSubBlocks()) {
             subBlock.setCancelled(false);
         }
+        clearVariables();
         return cancelled;
     }
 

@@ -59,6 +59,10 @@ public abstract class Block {
         variables.add(variable);
     }
 
+    public void clearVariables() {
+        variables.clear();
+    }
+
     public List<Variable> getVariables() {
         return variables;
     }

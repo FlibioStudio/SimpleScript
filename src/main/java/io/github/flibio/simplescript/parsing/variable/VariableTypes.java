@@ -59,7 +59,7 @@ public enum VariableTypes implements VariableType {
         }
 
         public List<VariableProperty<?>> getProperties() {
-            return Arrays.asList(VariableProperties.LOCATION);
+            return Arrays.asList(VariableProperties.LOCATION, VariableProperties.BLOCK_TYPE);
         }
 
         public List<VariableFunction> getFunctions() {
