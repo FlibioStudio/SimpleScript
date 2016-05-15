@@ -24,8 +24,6 @@
  */
 package io.github.flibio.simplescript.commands;
 
-import org.spongepowered.api.text.format.TextColors;
-
 import io.github.flibio.simplescript.PluginInfo;
 import io.github.flibio.utils.commands.AsyncCommand;
 import io.github.flibio.utils.commands.BaseCommandExecutor;
@@ -35,6 +33,7 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.command.spec.CommandSpec.Builder;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 @AsyncCommand
 @Command(aliases = {"simplescript", "ss"}, permission = "simplescript.admin.command")

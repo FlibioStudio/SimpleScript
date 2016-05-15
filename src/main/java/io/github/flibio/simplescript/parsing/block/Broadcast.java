@@ -24,8 +24,8 @@
  */
 package io.github.flibio.simplescript.parsing.block;
 
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 public class Broadcast extends Block {
 

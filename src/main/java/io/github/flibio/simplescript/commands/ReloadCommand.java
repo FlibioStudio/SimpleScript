@@ -24,8 +24,6 @@
  */
 package io.github.flibio.simplescript.commands;
 
-import org.spongepowered.api.command.spec.CommandSpec;
-
 import io.github.flibio.simplescript.SimpleScript;
 import io.github.flibio.simplescript.parsing.FileResolver;
 import io.github.flibio.utils.commands.AsyncCommand;
@@ -34,6 +32,7 @@ import io.github.flibio.utils.commands.Command;
 import io.github.flibio.utils.commands.ParentCommand;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.command.spec.CommandSpec.Builder;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;

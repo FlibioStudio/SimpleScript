@@ -24,12 +24,11 @@
  */
 package io.github.flibio.simplescript.parsing.parser;
 
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedType;
-
 import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Conditional;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
+import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedType;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariablePropertyParser;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariablePropertyParser.ParsedProperty;
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;

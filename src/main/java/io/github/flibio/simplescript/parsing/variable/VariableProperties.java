@@ -26,7 +26,6 @@ package io.github.flibio.simplescript.parsing.variable;
 
 import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableType;
 import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableTypes;
-
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.command.source.LocatedSource;

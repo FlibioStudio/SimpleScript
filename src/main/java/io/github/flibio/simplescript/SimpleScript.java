@@ -25,13 +25,12 @@
 package io.github.flibio.simplescript;
 
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-
 import io.github.flibio.simplescript.commands.ReloadCommand;
 import io.github.flibio.simplescript.commands.SimpleScriptCommand;
 import io.github.flibio.simplescript.parsing.FileResolver;
 import io.github.flibio.utils.commands.CommandLoader;
 import me.flibio.updatifier.Updatifier;
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
