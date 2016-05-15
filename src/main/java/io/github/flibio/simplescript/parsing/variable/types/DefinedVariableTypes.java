@@ -22,20 +22,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript.parsing.variable;
+package io.github.flibio.simplescript.parsing.variable.types;
+
+import io.github.flibio.simplescript.parsing.variable.VariableFunction;
+import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
+import io.github.flibio.simplescript.parsing.variable.VariableProperties;
+import io.github.flibio.simplescript.parsing.variable.VariableProperty;
 
 import java.util.Arrays;
 import java.util.List;
 
-public enum VariableTypes implements VariableType {
+public class DefinedVariableTypes {
 
-    PLAYER {
+    public static final DefinedVariableType PLAYER = new DefinedVariableType() {
 
-        public boolean isValid(String var) {
-            return var.matches("^(the )?player$");
-        }
-
-        public String parse(String var) {
+        public String getId() {
             return "player";
         }
 
@@ -44,17 +45,14 @@ public enum VariableTypes implements VariableType {
         }
 
         public List<VariableFunction> getFunctions() {
-            return Arrays.asList(VariableFunctions.SEND_MESSAGE);
-        }
-    },
-
-    BLOCK {
-
-        public boolean isValid(String var) {
-            return var.matches("^(the )?block$");
+            return Arrays.asList(VariableFunctions.SEND_MESSAGE, VariableFunctions.TELEPORT);
         }
 
-        public String parse(String var) {
+    };
+
+    public static final DefinedVariableType BLOCK = new DefinedVariableType() {
+
+        public String getId() {
             return "block";
         }
 
@@ -62,16 +60,22 @@ public enum VariableTypes implements VariableType {
             return Arrays.asList(VariableProperties.LOCATION, VariableProperties.BLOCK_TYPE);
         }
 
-        public List<VariableFunction> getFunctions() {
-            return Arrays.asList();
-        }
     };
 
-    public static VariableType getEnum(String input) {
-        for (VariableType value : values()) {
-            if (value.toString().equalsIgnoreCase(input.replaceAll(" ", "_").trim()))
-                return value;
+    public static List<DefinedVariableType> values() {
+        return Arrays.asList(PLAYER, BLOCK);
+    }
+
+    public static DefinedVariableType valueOf(String valueOf) {
+        for (DefinedVariableType type : values()) {
+            if (type.getId().equalsIgnoreCase(valueOf.replaceAll("_", " ").trim())) {
+                return type;
+            }
         }
         return null;
     }
+
+    private DefinedVariableTypes() {
+    }
+
 }

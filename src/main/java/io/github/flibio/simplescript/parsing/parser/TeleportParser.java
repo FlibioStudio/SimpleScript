@@ -24,47 +24,40 @@
  */
 package io.github.flibio.simplescript.parsing.parser;
 
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedType;
-
 import io.github.flibio.simplescript.parsing.block.Block;
-import io.github.flibio.simplescript.parsing.block.Conditional;
+import io.github.flibio.simplescript.parsing.block.Teleport;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariablePropertyParser;
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariablePropertyParser.ParsedProperty;
+import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedType;
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
+import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class ConditionalParser implements Parser<Conditional> {
+public class TeleportParser implements Parser<Teleport> {
 
     @Override
     public boolean canParse(Line line) {
-        return line.getData().trim()
-                .matches("^" + InlineVariableParser.getRegex() + " (has|have) ([a-zA-Z ]+) (not)? of ((\".*\")|([-]?[0-9]+(.[0-9]+)?))$");
+        return line.getData().trim().matches("^teleport " + InlineVariableParser.getRegex() + " to " + InlineVariableParser.getRegex() + "$");
     }
 
     @Override
-    public Conditional parse(Block superBlock, Line line) {
+    public Teleport parse(Block superBlock, Line line) {
         if (canParse(line)) {
             Tokenizer tokenizer = new Tokenizer(line.getData());
+            tokenizer.nextToken();
 
-            ParsedType var = InlineVariableParser.parse(tokenizer, Arrays.asList("has", "have"));
+            ParsedType wType = InlineVariableParser.parse(tokenizer, Arrays.asList("to"), VariableFunctions.TELEPORT);
+            tokenizer = wType.getTokenizer();
 
-            tokenizer = var.getTokenizer();
-
-            if (InlineVariablePropertyParser.isValid(tokenizer.getData(), Arrays.asList("of", "not"))) {
-                ParsedProperty parsed = InlineVariablePropertyParser.parse(tokenizer, Arrays.asList("of", "not"));
-                tokenizer = parsed.getTokenizer();
-                String nextValue = tokenizer.nextToken().getValue();
-                if (nextValue.equalsIgnoreCase("of")) {
-                    String value = tokenizer.nextToken().getValue();
-                    return new Conditional(superBlock, line.getIndentLevel(), var.getResult(), parsed.getProperty(), value, true);
-                } else {
-                    return new Conditional(superBlock, line.getIndentLevel(), var.getResult(), parsed.getProperty(), nextValue, false);
-                }
-            }
+            ParsedType lType = InlineVariableParser.parse(tokenizer, Arrays.asList(""));
+            Teleport teleport = new Teleport(superBlock, line.getIndentLevel(), lType.getResult(), wType.getResult());
+            teleport.addVariables(Stream.concat(wType.getVariables().stream(), lType.getVariables().stream()).collect(Collectors.toList()));
+            return teleport;
         }
-        throw new InvalidParseStringException(line.getData() + " could not be parsed as a conditional!");
+        throw new InvalidParseStringException(line.getData() + " could not be parsed as a teleport!");
     }
+
 }

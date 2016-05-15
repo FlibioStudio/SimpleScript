@@ -26,5 +26,5 @@ package io.github.flibio.simplescript.parsing.variable;
 
 public interface VariableFunction {
 
-    public boolean perform(Object obj, String input);
+    public boolean perform(Object obj, Object input);
 }

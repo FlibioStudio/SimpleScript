@@ -35,8 +35,10 @@ public class Cancel extends Block {
         Block curBlock = getSuperBlock();
         while (curBlock != null) {
             curBlock.setCancelled(true);
+            if (curBlock instanceof Event) {
+                ((Event) curBlock).setEventCancelled(true);
+            }
             curBlock = curBlock.getSuperBlock();
         }
     }
-
 }

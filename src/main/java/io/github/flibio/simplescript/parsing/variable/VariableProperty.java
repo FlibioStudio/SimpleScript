@@ -24,6 +24,8 @@
  */
 package io.github.flibio.simplescript.parsing.variable;
 
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableType;
+
 import java.util.Optional;
 
 public interface VariableProperty<T> {
@@ -36,4 +38,6 @@ public interface VariableProperty<T> {
     }
 
     public String getId();
+
+    public RuntimeVariableType<?> getType();
 }

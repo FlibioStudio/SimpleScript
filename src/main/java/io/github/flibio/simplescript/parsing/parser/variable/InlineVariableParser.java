@@ -24,47 +24,119 @@
  */
 package io.github.flibio.simplescript.parsing.parser.variable;
 
+import io.github.flibio.simplescript.parsing.tokenizer.Token;
+import io.github.flibio.simplescript.parsing.tokenizer.TokenTypes;
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
+import io.github.flibio.simplescript.parsing.variable.Variable;
 import io.github.flibio.simplescript.parsing.variable.VariableFunction;
-import io.github.flibio.simplescript.parsing.variable.VariableType;
-import io.github.flibio.simplescript.parsing.variable.VariableTypes;
+import io.github.flibio.simplescript.parsing.variable.VariableProperties;
+import io.github.flibio.simplescript.parsing.variable.VariableProperty;
+import io.github.flibio.simplescript.parsing.variable.types.DefinedVariableType;
+import io.github.flibio.simplescript.parsing.variable.types.DefinedVariableTypes;
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableType;
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableTypes;
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableTypes.ParsedVarType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class InlineVariableParser {
 
     public static String getRegex() {
-        return "([a-zA-Z ]+)";
+        return "(([a-zA-Z ]+)|(\".*\")|([-]?[0-9]+(.[0-9]+)?))";
     }
 
-    public static String parse(Tokenizer tokenizer, List<String> endChars, VariableFunction... functions) {
+    public static ParsedType parse(Tokenizer tokenizer, List<String> endChars, VariableFunction... functions) {
         String variableString = "";
         // Seperate the variable from the rest of the string
-        String tokenValue = tokenizer.nextToken().getValue();
-        while (!isEnd(endChars, tokenValue)) {
-            variableString += " " + tokenValue;
-            tokenValue = tokenizer.nextToken().getValue();
+        Token token = tokenizer.nextToken();
+        while (!isEnd(endChars, token.getValue().trim())) {
+            // Add the quotes back to the token if it was a string
+            variableString += token.getType().equals(TokenTypes.STRING) ? " \"" + token.getValue() + "\"" : " " + token.getValue();
+            token = tokenizer.nextToken();
         }
-        // Parse the variable
+        // Trim the variable and remove 'the'
         variableString = variableString.trim();
-        for (VariableType vType : VariableTypes.values()) {
+        if (variableString.startsWith("the")) {
+            variableString = variableString.replaceFirst("the", "").trim();
+        }
+        // Check if the variable is a defined type
+        for (DefinedVariableType vType : DefinedVariableTypes.values()) {
             if (vType.getFunctions().containsAll(Arrays.asList(functions))) {
-                if (vType.isValid(variableString)) {
-                    return vType.parse(variableString);
+                if (vType.getId().equalsIgnoreCase(variableString)) {
+                    return new ParsedType(variableString, tokenizer);
                 }
             }
         }
+        // Check if the variable is a defined type with property
+        String[] varArray = variableString.split(" ", 2);
+        if (varArray.length == 2) {
+            String variable = varArray[0];
+            String property = varArray[1];
+            for (DefinedVariableType vType : DefinedVariableTypes.values()) {
+                if (vType.getFunctions().containsAll(Arrays.asList(functions))) {
+                    if (vType.getId().equalsIgnoreCase(variable)) {
+                        for (VariableProperty<?> prop : VariableProperties.values()) {
+                            if (prop.getId().equalsIgnoreCase(property)) {
+                                // The property is valid
+                                return new ParsedType(variable + " " + property, tokenizer);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Check if the variable is a normal type
+        for (RuntimeVariableType<?> type : RuntimeVariableTypes.values()) {
+            if (type.isValid(variableString)) {
+                Optional<?> rOpt = type.parse(variableString);
+                if (rOpt.isPresent()) {
+                    Object raw = rOpt.get();
+                    if (raw instanceof ParsedVarType<?>) {
+                        ParsedVarType<?> pType = (ParsedVarType<?>) raw;
+                        return new ParsedType(pType.getKey(), tokenizer, new Variable(pType.getKey(), pType.getResult(), type));
+                    }
+                }
+            }
+        }
+        // The variable could not be parsed
         throw new VariableException("'" + variableString + "' could not be parsed to a valid variable!");
     }
 
     private static boolean isEnd(List<String> endChars, String tokenValue) {
         for (String endChar : endChars) {
-            if (endChar.equalsIgnoreCase(tokenValue)) {
+            if (endChar.trim().equalsIgnoreCase(tokenValue.trim())) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static class ParsedType {
+
+        private String result;
+        private Tokenizer tokenizer;
+        private List<Variable> variables = new ArrayList<>();
+
+        public ParsedType(String result, Tokenizer tokenizer, Variable... vars) {
+            this.result = result;
+            this.tokenizer = tokenizer;
+            this.variables = Arrays.asList(vars);
+        }
+
+        public String getResult() {
+            return result;
+        }
+
+        public Tokenizer getTokenizer() {
+            return tokenizer;
+        }
+
+        public List<Variable> getVariables() {
+            return variables;
+        }
     }
 
 }

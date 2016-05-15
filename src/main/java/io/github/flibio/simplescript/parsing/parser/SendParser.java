@@ -24,20 +24,23 @@
  */
 package io.github.flibio.simplescript.parsing.parser;
 
-import java.util.Arrays;
-
-import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
 import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Send;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
+import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedType;
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
+import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SendParser implements Parser<Send> {
 
     @Override
     public boolean canParse(Line line) {
-        return line.getData().trim().matches("^send (\".*\") to " + InlineVariableParser.getRegex() + "$");
+        return line.getData().trim().matches("^send " + InlineVariableParser.getRegex() + " to " + InlineVariableParser.getRegex() + "$");
     }
 
     @Override
@@ -46,12 +49,13 @@ public class SendParser implements Parser<Send> {
             Tokenizer tokenizer = new Tokenizer(line.getData());
             tokenizer.nextToken();
 
-            String msg = tokenizer.nextToken().getValue();
+            ParsedType mType = InlineVariableParser.parse(tokenizer, Arrays.asList("to"));
+            tokenizer = mType.getTokenizer();
 
-            tokenizer.nextToken();
-
-            String target = InlineVariableParser.parse(tokenizer, Arrays.asList(""), VariableFunctions.SEND_MESSAGE);
-            return new Send(superBlock, line.getIndentLevel(), msg, target);
+            ParsedType tType = InlineVariableParser.parse(tokenizer, Arrays.asList(""), VariableFunctions.SEND_MESSAGE);
+            Send send = new Send(superBlock, line.getIndentLevel(), mType.getResult(), tType.getResult());
+            send.addVariables(Stream.concat(mType.getVariables().stream(), tType.getVariables().stream()).collect(Collectors.toList()));
+            return send;
         }
         throw new InvalidParseStringException(line.getData() + " could not be parsed as a send!");
     }

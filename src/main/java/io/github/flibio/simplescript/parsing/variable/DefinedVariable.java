@@ -24,15 +24,16 @@
  */
 package io.github.flibio.simplescript.parsing.variable;
 
-import java.util.List;
+import io.github.flibio.simplescript.parsing.variable.types.DefinedVariableType;
 
-public interface VariableType {
+public class DefinedVariable extends Variable {
 
-    public boolean isValid(String var);
+    public DefinedVariable(String name, Object value, DefinedVariableType type) {
+        super(name, value, type);
+    }
 
-    public String parse(String var);
-
-    public List<VariableProperty<?>> getProperties();
-
-    public List<VariableFunction> getFunctions();
+    @Override
+    public DefinedVariableType getType() {
+        return (DefinedVariableType) type;
+    }
 }

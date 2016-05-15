@@ -24,7 +24,7 @@
  */
 package io.github.flibio.simplescript.parsing.block;
 
-import io.github.flibio.simplescript.parsing.variable.Variable;
+import io.github.flibio.simplescript.parsing.variable.DefinedVariable;
 import io.github.flibio.simplescript.parsing.variable.VariableProperty;
 
 import java.util.Optional;
@@ -33,24 +33,32 @@ public class Conditional extends Block {
 
     private String varName;
     private Object expectedValue;
+    private boolean invert;
 
     private VariableProperty<?> prop;
 
-    public Conditional(Block superBlock, int indentLevel, String variableName, VariableProperty<?> prop, Object expectedValue) {
+    public Conditional(Block superBlock, int indentLevel, String variableName, VariableProperty<?> prop, Object expectedValue, boolean invert) {
         super(superBlock, indentLevel);
         this.varName = variableName;
         this.prop = prop;
         this.expectedValue = expectedValue;
+        this.invert = invert;
     }
 
     @Override
     public void run() {
-        Optional<Variable> vOpt = getVariable(varName);
+        Optional<DefinedVariable> vOpt = getDefinedVariable(varName);
         if (vOpt.isPresent()) {
-            Variable variable = vOpt.get();
+            DefinedVariable variable = vOpt.get();
             if (variable.getType().getProperties().contains(prop)) {
-                if (!prop.test(variable.getValue(), expectedValue)) {
-                    getSuperBlock().setCancelled(true);
+                if (invert) {
+                    if (prop.test(variable.getValue(), expectedValue)) {
+                        getSuperBlock().setCancelled(true);
+                    }
+                } else {
+                    if (!prop.test(variable.getValue(), expectedValue)) {
+                        getSuperBlock().setCancelled(true);
+                    }
                 }
             }
         }

@@ -22,48 +22,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript.parsing.block;
+package io.github.flibio.simplescript.parsing.variable.types;
 
-public class Event extends Block {
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableTypes.ParsedVarType;
 
-    public enum EventType {
-        JOIN, QUIT, BREAK
-    }
+import java.util.Optional;
 
-    private EventType type;
-    private boolean eventCancelled = false;
+public interface RuntimeVariableType<T> extends VariableType {
 
-    public Event(Block superBlock, int indentLevel, EventType eventType) {
-        super(superBlock, indentLevel);
-        this.type = eventType;
-    }
+    public boolean isValid(String var);
 
-    public EventType getType() {
-        return type;
-    }
+    public Optional<ParsedVarType<T>> parse(String var);
 
-    public void setEventCancelled(boolean eventCancelled) {
-        this.eventCancelled = eventCancelled;
-    }
-
-    public boolean runEvent() {
-        for (Block subBlock : getSubBlocks()) {
-            if (isCancelled()) {
-                break;
-            }
-            subBlock.run();
-        }
-        // Reset the cancellation
-        setCancelled(false);
-        for (Block subBlock : getSubBlocks()) {
-            subBlock.setCancelled(false);
-        }
-        clearVariables();
-        return eventCancelled;
-    }
-
-    @Override
-    public void run() {
-        runEvent();
-    }
 }

@@ -24,7 +24,11 @@
  */
 package io.github.flibio.simplescript.parsing.block;
 
+import io.github.flibio.simplescript.parsing.variable.DefinedVariable;
+import io.github.flibio.simplescript.parsing.variable.RuntimeVariable;
 import io.github.flibio.simplescript.parsing.variable.Variable;
+import io.github.flibio.simplescript.parsing.variable.types.DefinedVariableType;
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +61,28 @@ public abstract class Block {
 
     public void addVariable(Variable variable) {
         variables.add(variable);
+        if (variable.getType() instanceof DefinedVariableType) {
+            DefinedVariableType type = (DefinedVariableType) variable.getType();
+            type.getProperties().forEach(prop -> {
+                Optional<?> oOpt = prop.getValue(variable.getValue());
+                if (oOpt.isPresent())
+                    addVariable(new Variable(type.getId() + " " + prop.getId(), oOpt.get(), prop.getType()));
+            });
+        }
+    }
+
+    public void addVariables(List<Variable> iVariables) {
+        iVariables.forEach(variable -> {
+            variables.add(variable);
+            if (variable.getType() instanceof DefinedVariableType) {
+                DefinedVariableType type = (DefinedVariableType) variable.getType();
+                type.getProperties().forEach(prop -> {
+                    Optional<?> oOpt = prop.getValue(variable.getValue());
+                    if (oOpt.isPresent())
+                        addVariable(new Variable(type.getId() + " " + prop.getId(), oOpt.get(), prop.getType()));
+                });
+            }
+        });
     }
 
     public void clearVariables() {
@@ -78,6 +104,42 @@ public abstract class Block {
             for (Variable var : curBlock.getVariables()) {
                 if (var.getName().equalsIgnoreCase(name)) {
                     return Optional.of(var);
+                }
+            }
+            curBlock = curBlock.getSuperBlock();
+        }
+        return Optional.empty();
+    }
+
+    public Optional<DefinedVariable> getDefinedVariable(String name) {
+        for (Variable var : variables) {
+            if (var.getName().equalsIgnoreCase(name) && var.getType() instanceof DefinedVariableType) {
+                return Optional.of(new DefinedVariable(var.getName(), var.getValue(), (DefinedVariableType) var.getType()));
+            }
+        }
+        Block curBlock = this;
+        while (curBlock != null) {
+            for (Variable var : curBlock.getVariables()) {
+                if (var.getName().equalsIgnoreCase(name) && var.getType() instanceof DefinedVariableType) {
+                    return Optional.of(new DefinedVariable(var.getName(), var.getValue(), (DefinedVariableType) var.getType()));
+                }
+            }
+            curBlock = curBlock.getSuperBlock();
+        }
+        return Optional.empty();
+    }
+
+    public Optional<RuntimeVariable> getRuntimeVariable(String name) {
+        for (Variable var : variables) {
+            if (var.getName().equalsIgnoreCase(name) && var.getType() instanceof RuntimeVariableType<?>) {
+                return Optional.of(new RuntimeVariable(var.getName(), var.getValue(), (RuntimeVariableType<?>) var.getType()));
+            }
+        }
+        Block curBlock = this;
+        while (curBlock != null) {
+            for (Variable var : curBlock.getVariables()) {
+                if (var.getName().equalsIgnoreCase(name) && var.getType() instanceof RuntimeVariableType<?>) {
+                    return Optional.of(new RuntimeVariable(var.getName(), var.getValue(), (RuntimeVariableType<?>) var.getType()));
                 }
             }
             curBlock = curBlock.getSuperBlock();

@@ -24,12 +24,13 @@
  */
 package io.github.flibio.simplescript.parsing.variable;
 
+import io.github.flibio.simplescript.parsing.variable.types.VariableType;
 
 public class Variable {
 
     private String name;
     private Object value;
-    private VariableType type;
+    protected VariableType type;
 
     public Variable(String name, Object value, VariableType type) {
         this.name = name;

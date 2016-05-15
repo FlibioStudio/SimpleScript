@@ -38,6 +38,7 @@ import io.github.flibio.simplescript.parsing.parser.ConditionalParser;
 import io.github.flibio.simplescript.parsing.parser.EventParser;
 import io.github.flibio.simplescript.parsing.parser.Parser;
 import io.github.flibio.simplescript.parsing.parser.SendParser;
+import io.github.flibio.simplescript.parsing.parser.TeleportParser;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -55,7 +56,7 @@ public class FileResolver {
     private Logger logger = SimpleScript.getInstance().getLogger();
 
     private List<Parser<?>> parsers = Arrays.asList(new EventParser(), new BroadcastParser(), new SendParser(), new ConditionalParser(),
-            new CancelParser());
+            new CancelParser(), new TeleportParser());
     private Map<Integer, Block> superBlocks = new HashMap<>();
     private Multimap<EventType, Event> events = HashMultimap.create();
 
@@ -87,11 +88,12 @@ public class FileResolver {
                         parsed = true;
                     }
                 } catch (Exception e) {
+                    logger.error(e.getMessage());
                     parsed = false;
                 }
             }
             if (!parsed) {
-                logger.error("Line '" + line.getData() + "'[" + lineNumber + "] could not be parsed!");
+                logger.error("Line '" + line.getData().trim() + "'[" + lineNumber + "] could not be parsed!");
             }
             lineNumber++;
         }

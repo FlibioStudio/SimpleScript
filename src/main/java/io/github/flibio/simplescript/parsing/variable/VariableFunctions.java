@@ -25,11 +25,13 @@
 package io.github.flibio.simplescript.parsing.variable;
 
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -39,11 +41,11 @@ public enum VariableFunctions implements VariableFunction {
 
     SEND_MESSAGE {
 
-        public boolean perform(Object rObj, String input) {
+        public boolean perform(Object rObj, Object input) {
             Object obj = parseUUID(rObj);
             if (obj instanceof MessageReceiver) {
                 MessageReceiver receiver = ((MessageReceiver) obj);
-                receiver.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(input));
+                receiver.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(input.toString()));
                 return true;
             }
             return false;
@@ -51,17 +53,14 @@ public enum VariableFunctions implements VariableFunction {
 
     },
 
-    GROUP_SEND_MESSAGE {
+    TELEPORT {
 
-        public boolean perform(Object obj, String input) {
-            if (obj instanceof List<?>) {
-                for (Object rO : (List<?>) obj) {
-                    Object o = parseUUID(rO);
-                    if (o instanceof MessageReceiver) {
-                        ((MessageReceiver) o).sendMessage(TextSerializers.FORMATTING_CODE.deserialize(input));
-                        return true;
-                    }
-                }
+        @SuppressWarnings("unchecked")
+        public boolean perform(Object rObj, Object input) {
+            Object obj = parseUUID(rObj);
+            if (obj instanceof Entity && input instanceof Location<?>) {
+                ((Entity) obj).setLocation((Location<World>) input);
+                return true;
             }
             return false;
         }

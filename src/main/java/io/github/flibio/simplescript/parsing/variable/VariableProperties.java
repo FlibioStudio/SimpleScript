@@ -24,6 +24,9 @@
  */
 package io.github.flibio.simplescript.parsing.variable;
 
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableType;
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableTypes;
+
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.command.source.LocatedSource;
@@ -61,6 +64,10 @@ public class VariableProperties {
             return "display name";
         }
 
+        public RuntimeVariableType<?> getType() {
+            return RuntimeVariableTypes.STRING;
+        }
+
     };
 
     public static final VariableProperty<Location<World>> LOCATION = new VariableProperty<Location<World>>() {
@@ -80,6 +87,10 @@ public class VariableProperties {
             return "location";
         }
 
+        public RuntimeVariableType<?> getType() {
+            return RuntimeVariableTypes.LOCATION;
+        }
+
     };
 
     public static final VariableProperty<Boolean> PERMISSION = new VariableProperty<Boolean>() {
@@ -88,7 +99,6 @@ public class VariableProperties {
             return Optional.of(false);
         }
 
-        @Override
         public boolean test(Object rObj, Object expected) {
             Object obj = parseUUID(rObj);
             if (obj instanceof Subject) {
@@ -99,6 +109,10 @@ public class VariableProperties {
 
         public String getId() {
             return "permission";
+        }
+
+        public RuntimeVariableType<?> getType() {
+            return RuntimeVariableTypes.BOOLEAN;
         }
 
     };
@@ -114,6 +128,10 @@ public class VariableProperties {
 
         public String getId() {
             return "block type";
+        }
+
+        public RuntimeVariableType<?> getType() {
+            return RuntimeVariableTypes.BLOCK_TYPE;
         }
 
     };

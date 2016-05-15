@@ -24,46 +24,31 @@
  */
 package io.github.flibio.simplescript.parsing.block;
 
-public class Event extends Block {
+import io.github.flibio.simplescript.parsing.variable.DefinedVariable;
+import io.github.flibio.simplescript.parsing.variable.Variable;
+import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
 
-    public enum EventType {
-        JOIN, QUIT, BREAK
-    }
+import java.util.Optional;
 
-    private EventType type;
-    private boolean eventCancelled = false;
+public class Teleport extends Block {
 
-    public Event(Block superBlock, int indentLevel, EventType eventType) {
+    private String target, targetLoc;
+
+    public Teleport(Block superBlock, int indentLevel, String targetLoc, String target) {
         super(superBlock, indentLevel);
-        this.type = eventType;
-    }
-
-    public EventType getType() {
-        return type;
-    }
-
-    public void setEventCancelled(boolean eventCancelled) {
-        this.eventCancelled = eventCancelled;
-    }
-
-    public boolean runEvent() {
-        for (Block subBlock : getSubBlocks()) {
-            if (isCancelled()) {
-                break;
-            }
-            subBlock.run();
-        }
-        // Reset the cancellation
-        setCancelled(false);
-        for (Block subBlock : getSubBlocks()) {
-            subBlock.setCancelled(false);
-        }
-        clearVariables();
-        return eventCancelled;
+        this.targetLoc = targetLoc;
+        this.target = target;
     }
 
     @Override
     public void run() {
-        runEvent();
+        Optional<DefinedVariable> vOpt = getDefinedVariable(target);
+        Optional<Variable> lOpt = getVariable(targetLoc);
+        if (vOpt.isPresent() && lOpt.isPresent()) {
+            DefinedVariable var = vOpt.get();
+            if (var.getType().getFunctions().contains(VariableFunctions.TELEPORT)) {
+                VariableFunctions.TELEPORT.perform(var.getValue(), lOpt.get().getValue());
+            }
+        }
     }
 }

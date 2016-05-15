@@ -24,6 +24,7 @@
  */
 package io.github.flibio.simplescript.parsing.block;
 
+import io.github.flibio.simplescript.parsing.variable.DefinedVariable;
 import io.github.flibio.simplescript.parsing.variable.Variable;
 import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
 
@@ -40,20 +41,14 @@ public class Send extends Block {
         this.target = target;
     }
 
-    public String getMessage() {
-        return msg;
-    }
-
     @Override
     public void run() {
-        Optional<Variable> vOpt = getVariable(target);
-        if (vOpt.isPresent()) {
-            Variable var = vOpt.get();
+        Optional<DefinedVariable> tOpt = getDefinedVariable(target);
+        Optional<Variable> mOpt = getVariable(msg);
+        if (tOpt.isPresent() && mOpt.isPresent()) {
+            DefinedVariable var = tOpt.get();
             if (var.getType().getFunctions().contains(VariableFunctions.SEND_MESSAGE)) {
-                VariableFunctions.SEND_MESSAGE.perform(var.getValue(), msg);
-            }
-            if (var.getType().getFunctions().contains(VariableFunctions.GROUP_SEND_MESSAGE)) {
-                VariableFunctions.GROUP_SEND_MESSAGE.perform(var.getValue(), msg);
+                VariableFunctions.SEND_MESSAGE.perform(var.getValue(), mOpt.get().getValue().toString());
             }
         }
     }

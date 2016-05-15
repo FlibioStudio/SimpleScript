@@ -27,7 +27,7 @@ package io.github.flibio.simplescript;
 import io.github.flibio.simplescript.parsing.FileResolver;
 import io.github.flibio.simplescript.parsing.block.Event.EventType;
 import io.github.flibio.simplescript.parsing.variable.Variable;
-import io.github.flibio.simplescript.parsing.variable.VariableTypes;
+import io.github.flibio.simplescript.parsing.variable.types.DefinedVariableTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
@@ -45,7 +45,7 @@ public class Events {
     @Listener
     public void onJoin(ClientConnectionEvent.Join event) {
         resolver.getEvents().get(EventType.JOIN).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity().getUniqueId(), VariableTypes.PLAYER));
+            e.addVariable(new Variable("player", event.getTargetEntity().getUniqueId(), DefinedVariableTypes.PLAYER));
             e.run();
         });
     }
@@ -53,7 +53,7 @@ public class Events {
     @Listener
     public void onQuit(ClientConnectionEvent.Disconnect event) {
         resolver.getEvents().get(EventType.QUIT).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity().getUniqueId(), VariableTypes.PLAYER));
+            e.addVariable(new Variable("player", event.getTargetEntity().getUniqueId(), DefinedVariableTypes.PLAYER));
             e.run();
         });
     }
@@ -62,8 +62,8 @@ public class Events {
     public void onBreak(ChangeBlockEvent.Break event, @First Player player) {
         if (event.getTransactions().size() > 0) {
             resolver.getEvents().get(EventType.BREAK).forEach(e -> {
-                e.addVariable(new Variable("player", player.getUniqueId(), VariableTypes.PLAYER));
-                e.addVariable(new Variable("block", event.getTransactions().get(0).getOriginal(), VariableTypes.BLOCK));
+                e.addVariable(new Variable("player", player.getUniqueId(), DefinedVariableTypes.PLAYER));
+                e.addVariable(new Variable("block", event.getTransactions().get(0).getOriginal(), DefinedVariableTypes.BLOCK));
                 event.setCancelled(e.runEvent());
             });
         }
