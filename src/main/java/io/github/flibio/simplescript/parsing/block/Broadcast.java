@@ -24,8 +24,11 @@
  */
 package io.github.flibio.simplescript.parsing.block;
 
+import io.github.flibio.simplescript.parsing.variable.Variable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.serializer.TextSerializers;
+
+import java.util.Optional;
 
 public class Broadcast extends Block {
 
@@ -42,7 +45,10 @@ public class Broadcast extends Block {
 
     @Override
     public void run() {
-        Sponge.getServer().getBroadcastChannel().send(TextSerializers.FORMATTING_CODE.deserialize(msg));
+        Optional<Variable> message = getVariable(msg);
+        if (message.isPresent() && message.get().getValue() instanceof String) {
+            Sponge.getServer().getBroadcastChannel().send(TextSerializers.FORMATTING_CODE.deserialize((String) message.get().getValue()));
+        }
     }
 
 }

@@ -35,6 +35,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.io.File;
@@ -50,11 +51,15 @@ public class SimpleScript {
     @Listener
     public void onStart(GameInitializationEvent event) {
         access = this;
-        FileResolver resolver = FileResolver.of(new File("config/simplescript/scripts")).get();
-        Sponge.getEventManager().registerListeners(this, new Events(resolver));
         CommandLoader.registerCommands(this, "&cYou must be a {sourcetype} to use this command!",
                 new SimpleScriptCommand(),
                 new ReloadCommand());
+    }
+
+    @Listener
+    public void onStarting(GameStartingServerEvent event) {
+        FileResolver resolver = FileResolver.of(new File("config/simplescript/scripts")).get();
+        Sponge.getEventManager().registerListeners(this, new Events(resolver));
     }
 
     public Logger getLogger() {

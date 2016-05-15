@@ -45,7 +45,7 @@ import java.util.Optional;
 public class InlineVariableParser {
 
     public static String getRegex() {
-        return "(([a-zA-Z ]+)|(\".*\")|([-]?[0-9]+(.[0-9]+)?))";
+        return "(([a-zA-Z ]+)|(\".*\")|([-]?[0-9]+(\\.[0-9]+)?[ ]*)*)";
     }
 
     public static ParsedType parse(Tokenizer tokenizer, List<String> endChars, VariableFunction... functions) {
@@ -62,6 +62,7 @@ public class InlineVariableParser {
         if (variableString.startsWith("the")) {
             variableString = variableString.replaceFirst("the", "").trim();
         }
+        System.out.println(variableString);
         // Check if the variable is a defined type
         for (DefinedVariableType vType : DefinedVariableTypes.values()) {
             if (vType.getFunctions().containsAll(Arrays.asList(functions))) {
@@ -91,6 +92,7 @@ public class InlineVariableParser {
         // Check if the variable is a runtime type
         for (RuntimeVariableType<?> type : RuntimeVariableTypes.values()) {
             if (type.isValid(variableString)) {
+                System.out.println("valid");
                 Optional<?> rOpt = type.parse(variableString);
                 if (rOpt.isPresent()) {
                     Object raw = rOpt.get();

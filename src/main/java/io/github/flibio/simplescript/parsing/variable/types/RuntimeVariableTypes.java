@@ -111,7 +111,7 @@ public class RuntimeVariableTypes {
     public static final RuntimeVariableType<Location<World>> LOCATION = new RuntimeVariableType<Location<World>>() {
 
         public boolean isValid(String var) {
-            return var.matches("^[-]?[0-9]+ [-]?[0-9]+ [-]?[0-9]+$");
+            return var.matches("^([-]?[0-9]+(\\.[0-9]+)?[ ]*)*$");
         }
 
         public Optional<ParsedVarType<Location<World>>> parse(String var) {
@@ -127,6 +127,7 @@ public class RuntimeVariableTypes {
                                 .of(new ParsedVarType<Location<World>>(UUID.randomUUID().toString(), new Location<World>(wOpt.get(), x, y, z)));
                     return Optional.empty();
                 } catch (Exception e) {
+                    e.printStackTrace();
                     return Optional.empty();
                 }
             } else {
