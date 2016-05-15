@@ -55,7 +55,7 @@ public enum TokenTypes implements TokenType {
     DOUBLE {
 
         public Pattern getPattern() {
-            return Pattern.compile("^([-]?[0-9]+(.[0-9]+)?))?");
+            return Pattern.compile("^([-]?[0-9]+(.[0-9]+)?)?");
         }
     },
 

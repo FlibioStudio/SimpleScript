@@ -35,6 +35,7 @@ import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.BroadcastParser;
 import io.github.flibio.simplescript.parsing.parser.CancelParser;
 import io.github.flibio.simplescript.parsing.parser.ConditionalParser;
+import io.github.flibio.simplescript.parsing.parser.DropParser;
 import io.github.flibio.simplescript.parsing.parser.EventParser;
 import io.github.flibio.simplescript.parsing.parser.Parser;
 import io.github.flibio.simplescript.parsing.parser.SendParser;
@@ -56,7 +57,7 @@ public class FileResolver {
     private Logger logger = SimpleScript.getInstance().getLogger();
 
     private List<Parser<?>> parsers = Arrays.asList(new EventParser(), new BroadcastParser(), new SendParser(), new ConditionalParser(),
-            new CancelParser(), new TeleportParser());
+            new CancelParser(), new TeleportParser(), new DropParser());
     private Map<Integer, Block> superBlocks = new HashMap<>();
     private Multimap<EventType, Event> events = HashMultimap.create();
 

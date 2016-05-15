@@ -88,7 +88,7 @@ public class InlineVariableParser {
                 }
             }
         }
-        // Check if the variable is a normal type
+        // Check if the variable is a runtime type
         for (RuntimeVariableType<?> type : RuntimeVariableTypes.values()) {
             if (type.isValid(variableString)) {
                 Optional<?> rOpt = type.parse(variableString);

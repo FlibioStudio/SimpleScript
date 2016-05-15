@@ -25,32 +25,51 @@
 package io.github.flibio.simplescript.parsing.parser;
 
 import io.github.flibio.simplescript.parsing.block.Block;
-import io.github.flibio.simplescript.parsing.block.Broadcast;
+import io.github.flibio.simplescript.parsing.block.Drop;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedType;
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
+import io.github.flibio.simplescript.parsing.variable.Variable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class BroadcastParser implements Parser<Broadcast> {
+public class DropParser implements Parser<Drop> {
 
     @Override
     public boolean canParse(Line line) {
-        return line.getData().trim().matches("broadcast " + InlineVariableParser.getRegex());
+        return line.getData().trim().matches(
+                "^drop " + InlineVariableParser.getRegex() + " of " + InlineVariableParser.getRegex() + " at "
+                        + InlineVariableParser.getRegex() + "$");
     }
 
     @Override
-    public Broadcast parse(Block superBlock, Line line) {
+    public Drop parse(Block superBlock, Line line) {
         if (canParse(line)) {
             Tokenizer tokenizer = new Tokenizer(line.getData());
             tokenizer.nextToken();
 
-            ParsedType type = InlineVariableParser.parse(tokenizer, Arrays.asList(""));
+            ParsedType pAmount = InlineVariableParser.parse(tokenizer, Arrays.asList("of"));
+            tokenizer = pAmount.getTokenizer();
 
-            return new Broadcast(superBlock, line.getIndentLevel(), type.getResult());
+            ParsedType pType = InlineVariableParser.parse(tokenizer, Arrays.asList("at"));
+            tokenizer = pType.getTokenizer();
+            ParsedType pLocation = InlineVariableParser.parse(tokenizer, Arrays.asList(""));
+
+            Drop drop = new Drop(superBlock, line.getIndentLevel(), pLocation.getResult(), pType.getResult(), pAmount.getResult());
+            try {
+                List<Variable> vars = new ArrayList<Variable>();
+                vars.addAll(pAmount.getVariables());
+                vars.addAll(pType.getVariables());
+                vars.addAll(pLocation.getVariables());
+                drop.addVariables(vars);
+                return drop;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        throw new InvalidParseStringException(line.getData() + " could not be parsed as an broadcast!");
+        throw new InvalidParseStringException(line.getData() + " could not be parsed as a drop!");
     }
-
 }

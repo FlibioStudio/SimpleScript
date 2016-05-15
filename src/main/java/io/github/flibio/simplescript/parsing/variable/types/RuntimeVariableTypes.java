@@ -52,6 +52,20 @@ public class RuntimeVariableTypes {
 
     };
 
+    public static final RuntimeVariableType<Double> DOUBLE = new RuntimeVariableType<Double>() {
+
+        public boolean isValid(String var) {
+            return var.matches("^([-]?[0-9]+(.[0-9]+)?)$");
+        }
+
+        public Optional<ParsedVarType<Double>> parse(String var) {
+            if (isValid(var))
+                return Optional.of(new ParsedVarType<Double>(UUID.randomUUID().toString(), Double.valueOf(var)));
+            return Optional.empty();
+        }
+
+    };
+
     public static final RuntimeVariableType<Boolean> BOOLEAN = new RuntimeVariableType<Boolean>() {
 
         public boolean isValid(String var) {
@@ -122,7 +136,7 @@ public class RuntimeVariableTypes {
     };
 
     public static List<RuntimeVariableType<?>> values() {
-        return Arrays.asList(STRING, BOOLEAN, BLOCK_TYPE, ITEM_TYPE, LOCATION);
+        return Arrays.asList(STRING, BOOLEAN, DOUBLE, BLOCK_TYPE, ITEM_TYPE, LOCATION);
     }
 
     private RuntimeVariableTypes() {
