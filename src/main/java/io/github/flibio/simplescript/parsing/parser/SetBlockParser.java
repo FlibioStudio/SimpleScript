@@ -25,30 +25,42 @@
 package io.github.flibio.simplescript.parsing.parser;
 
 import io.github.flibio.simplescript.parsing.block.Block;
-import io.github.flibio.simplescript.parsing.block.Broadcast;
+import io.github.flibio.simplescript.parsing.block.SetBlock;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedVariable;
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableTypes;
 
-public class BroadcastParser implements Parser<Broadcast> {
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class SetBlockParser implements Parser<SetBlock> {
 
     @Override
     public boolean canParse(Line line) {
-        return line.getData().trim().matches("broadcast " + InlineVariableParser.getRegex());
+        return line.getData().trim().matches(
+                "^set block at " + InlineVariableParser.getRegex() + " to " + InlineVariableParser.getRegex() + "$");
     }
 
     @Override
-    public Broadcast parse(Block superBlock, Line line) {
+    public SetBlock parse(Block superBlock, Line line) {
         if (canParse(line)) {
             Tokenizer tokenizer = new Tokenizer(line.getData());
             tokenizer.nextToken();
+            tokenizer.nextToken();
+            tokenizer.nextToken();
 
-            ParsedVariable type = InlineVariableParser.parse(tokenizer);
+            ParsedVariable location = InlineVariableParser.parse(tokenizer, RuntimeVariableTypes.LOCATION);
+            tokenizer = location.getTokenizer();
 
-            return new Broadcast(superBlock, line.getIndentLevel(), type.getResult());
+            tokenizer.nextToken();
+            ParsedVariable type = InlineVariableParser.parse(tokenizer, RuntimeVariableTypes.BLOCK_TYPE);
+            tokenizer = type.getTokenizer();
+            SetBlock setBlock = new SetBlock(superBlock, line.getIndentLevel(), location.getResult(), type.getResult());
+            setBlock.addVariables(Stream.concat(location.getVariables().stream(), type.getVariables().stream()).collect(Collectors.toList()));
+            return setBlock;
         }
-        throw new InvalidParseStringException(line.getData() + " could not be parsed as an broadcast!");
+        throw new InvalidParseStringException(line.getData() + " could not be parsed as a set block!");
     }
-
 }

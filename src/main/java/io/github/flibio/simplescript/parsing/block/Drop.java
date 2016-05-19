@@ -24,14 +24,14 @@
  */
 package io.github.flibio.simplescript.parsing.block;
 
-import io.github.flibio.simplescript.SimpleScript;
 import io.github.flibio.simplescript.parsing.variable.Variable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.entity.spawn.SpawnCause;
+import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.Location;
@@ -69,7 +69,7 @@ public class Drop extends Block {
                 if (eOpt.isPresent()) {
                     Entity entity = eOpt.get();
                     entity.offer(Keys.REPRESENTED_ITEM, stack.createSnapshot());
-                    location.getExtent().spawnEntity(entity, Cause.of(NamedCause.of("SimpleScript", SimpleScript.getInstance())));
+                    location.getExtent().spawnEntity(entity, Cause.source(SpawnCause.builder().type(SpawnTypes.PLUGIN).build()).build());
                 }
             }
         }

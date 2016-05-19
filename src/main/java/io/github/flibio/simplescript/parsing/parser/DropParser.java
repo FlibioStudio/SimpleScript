@@ -28,20 +28,16 @@ import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Drop;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedType;
+import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedVariable;
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
-import io.github.flibio.simplescript.parsing.variable.Variable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableTypes;
 
 public class DropParser implements Parser<Drop> {
 
     @Override
     public boolean canParse(Line line) {
         return line.getData().trim().matches(
-                "^drop " + InlineVariableParser.getRegex() + " of " + InlineVariableParser.getRegex() + " at "
+                "^drop " + InlineVariableParser.getRegex() + InlineVariableParser.getRegex() + " at "
                         + InlineVariableParser.getRegex() + "$");
     }
 
@@ -51,24 +47,19 @@ public class DropParser implements Parser<Drop> {
             Tokenizer tokenizer = new Tokenizer(line.getData());
             tokenizer.nextToken();
 
-            ParsedType pAmount = InlineVariableParser.parse(tokenizer, Arrays.asList("of"));
+            ParsedVariable pAmount = InlineVariableParser.parse(tokenizer, RuntimeVariableTypes.DOUBLE);
             tokenizer = pAmount.getTokenizer();
 
-            ParsedType pType = InlineVariableParser.parse(tokenizer, Arrays.asList("at"));
+            ParsedVariable pType = InlineVariableParser.parse(tokenizer, RuntimeVariableTypes.ITEM_TYPE);
             tokenizer = pType.getTokenizer();
-            ParsedType pLocation = InlineVariableParser.parse(tokenizer, Arrays.asList(""));
-
+            tokenizer.nextToken();
+            ParsedVariable pLocation = InlineVariableParser.parse(tokenizer, RuntimeVariableTypes.LOCATION);
             Drop drop = new Drop(superBlock, line.getIndentLevel(), pLocation.getResult(), pType.getResult(), pAmount.getResult());
-            try {
-                List<Variable> vars = new ArrayList<Variable>();
-                vars.addAll(pAmount.getVariables());
-                vars.addAll(pType.getVariables());
-                vars.addAll(pLocation.getVariables());
-                drop.addVariables(vars);
-                return drop;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
+            drop.addVariables(pAmount.getVariables());
+            drop.addVariables(pType.getVariables());
+            drop.addVariables(pLocation.getVariables());
+            return drop;
         }
         throw new InvalidParseStringException(line.getData() + " could not be parsed as a drop!");
     }

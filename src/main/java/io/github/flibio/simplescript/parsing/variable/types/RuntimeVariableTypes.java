@@ -83,13 +83,14 @@ public class RuntimeVariableTypes {
     public static final RuntimeVariableType<BlockType> BLOCK_TYPE = new RuntimeVariableType<BlockType>() {
 
         public boolean isValid(String var) {
-            return Sponge.getRegistry().getType(BlockType.class, var.trim()).isPresent();
+            return Sponge.getRegistry().getType(BlockType.class, var.trim().replaceAll(" ", "_")).isPresent();
         }
 
         public Optional<ParsedVarType<BlockType>> parse(String var) {
-            if (isValid(var))
+            if (isValid(var)) {
                 return Optional.of(new ParsedVarType<BlockType>(UUID.randomUUID().toString(), Sponge.getRegistry()
-                        .getType(BlockType.class, var.trim()).get()));
+                        .getType(BlockType.class, var.trim().replaceAll(" ", "_")).get()));
+            }
             return Optional.empty();
         }
     };
@@ -97,13 +98,13 @@ public class RuntimeVariableTypes {
     public static final RuntimeVariableType<ItemType> ITEM_TYPE = new RuntimeVariableType<ItemType>() {
 
         public boolean isValid(String var) {
-            return Sponge.getRegistry().getType(ItemType.class, var.trim()).isPresent();
+            return Sponge.getRegistry().getType(ItemType.class, var.trim().replaceAll(" ", "_")).isPresent();
         }
 
         public Optional<ParsedVarType<ItemType>> parse(String var) {
             if (isValid(var))
                 return Optional.of(new ParsedVarType<ItemType>(UUID.randomUUID().toString(), Sponge.getRegistry()
-                        .getType(ItemType.class, var.trim()).get()));
+                        .getType(ItemType.class, var.trim().replaceAll(" ", "_")).get()));
             return Optional.empty();
         }
     };
@@ -127,7 +128,6 @@ public class RuntimeVariableTypes {
                                 .of(new ParsedVarType<Location<World>>(UUID.randomUUID().toString(), new Location<World>(wOpt.get(), x, y, z)));
                     return Optional.empty();
                 } catch (Exception e) {
-                    e.printStackTrace();
                     return Optional.empty();
                 }
             } else {

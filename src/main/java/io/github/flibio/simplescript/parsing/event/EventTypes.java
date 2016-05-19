@@ -38,7 +38,6 @@ public class EventTypes {
             return "join";
         }
 
-        @Override
         public List<DefinedVariableType> getDefinedVariables() {
             return Arrays.asList(DefinedVariableTypes.PLAYER);
         }
@@ -51,7 +50,6 @@ public class EventTypes {
             return "quit";
         }
 
-        @Override
         public List<DefinedVariableType> getDefinedVariables() {
             return Arrays.asList(DefinedVariableTypes.PLAYER);
         }
@@ -64,15 +62,29 @@ public class EventTypes {
             return "break";
         }
 
-        @Override
         public List<DefinedVariableType> getDefinedVariables() {
             return Arrays.asList(DefinedVariableTypes.PLAYER, DefinedVariableTypes.BLOCK);
         }
 
+        public List<EventType> getLinkedEventTypes() {
+            return Arrays.asList(DROP);
+        }
+
+    };
+
+    public static final EventType DROP = new EventType() {
+
+        public String getId() {
+            return "drop";
+        }
+
+        public List<DefinedVariableType> getDefinedVariables() {
+            return Arrays.asList();
+        }
     };
 
     public static List<EventType> values() {
-        return Arrays.asList();
+        return Arrays.asList(JOIN, QUIT, BREAK, DROP);
     }
 
     public static EventType valueOf(String valueOf) {

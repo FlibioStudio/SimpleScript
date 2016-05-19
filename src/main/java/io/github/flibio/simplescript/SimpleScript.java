@@ -28,6 +28,7 @@ import com.google.inject.Inject;
 import io.github.flibio.simplescript.commands.ReloadCommand;
 import io.github.flibio.simplescript.commands.SimpleScriptCommand;
 import io.github.flibio.simplescript.parsing.FileResolver;
+import io.github.flibio.simplescript.parsing.event.LinkedEvent;
 import io.github.flibio.utils.commands.CommandLoader;
 import me.flibio.updatifier.Updatifier;
 import org.slf4j.Logger;
@@ -39,6 +40,9 @@ import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Updatifier(repoName = "SimpleScript", repoOwner = "FlibioStudio", version = PluginInfo.VERSION)
 @Plugin(id = PluginInfo.ID, name = PluginInfo.NAME, version = PluginInfo.VERSION, description = PluginInfo.DESCRIPTION)
@@ -47,6 +51,8 @@ public class SimpleScript {
     @Inject private Logger logger;
 
     private static SimpleScript access;
+
+    private static Map<UUID, LinkedEvent> linkedEvents = new HashMap<>();
 
     @Listener
     public void onStart(GameInitializationEvent event) {
@@ -60,6 +66,7 @@ public class SimpleScript {
     public void onStarting(GameStartingServerEvent event) {
         FileResolver resolver = FileResolver.of(new File("config/simplescript/scripts")).get();
         Sponge.getEventManager().registerListeners(this, new Events(resolver));
+        Sponge.getEventManager().registerListeners(this, new LinkedEvents(resolver));
     }
 
     public Logger getLogger() {
@@ -74,6 +81,15 @@ public class SimpleScript {
         EventManager manager = Sponge.getEventManager();
         manager.unregisterPluginListeners(access);
         manager.registerListeners(access, new Events(resolver));
+        manager.registerListeners(access, new LinkedEvents(resolver));
+    }
+
+    public static Map<UUID, LinkedEvent> getLinkedEvents() {
+        return linkedEvents;
+    }
+
+    public static void addLinkedEvent(LinkedEvent event) {
+        linkedEvents.put(event.getUniqueId(), event);
     }
 
 }

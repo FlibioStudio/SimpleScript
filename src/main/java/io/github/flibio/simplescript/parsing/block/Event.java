@@ -24,14 +24,23 @@
  */
 package io.github.flibio.simplescript.parsing.block;
 
+import io.github.flibio.simplescript.parsing.event.EventType;
+import org.spongepowered.api.event.Cancellable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 public class Event extends Block {
 
-    public enum EventType {
-        JOIN, QUIT, BREAK
-    }
-
     private EventType type;
-    private boolean eventCancelled = false;
+    private Cancellable event;
+
+    private Event parentEvent;
+    private List<UUID> linkedEvents = new ArrayList<>();
+
+    private Object compareObj;
 
     public Event(Block superBlock, int indentLevel, EventType eventType) {
         super(superBlock, indentLevel);
@@ -43,10 +52,36 @@ public class Event extends Block {
     }
 
     public void setEventCancelled(boolean eventCancelled) {
-        this.eventCancelled = eventCancelled;
+        if (event != null)
+            event.setCancelled(eventCancelled);
     }
 
-    public boolean runEvent() {
+    public Optional<Event> getParentEvent() {
+        return parentEvent != null ? Optional.of(parentEvent) : Optional.empty();
+    }
+
+    public void setParentEvent(Event event) {
+        parentEvent = event;
+    }
+
+    public void addLinkedEvent(UUID event) {
+        linkedEvents.add(event);
+    }
+
+    public List<UUID> getLinkedEvents() {
+        return linkedEvents;
+    }
+
+    public void setCompareObject(Object obj) {
+        compareObj = obj;
+    }
+
+    public Object getCompareObject() {
+        return compareObj;
+    }
+
+    public void runEvent(Cancellable event) {
+        this.event = event;
         for (Block subBlock : getSubBlocks()) {
             if (isCancelled()) {
                 break;
@@ -55,15 +90,15 @@ public class Event extends Block {
         }
         // Reset the cancellation
         setCancelled(false);
-        for (Block subBlock : getSubBlocks()) {
-            subBlock.setCancelled(false);
-        }
+        getSubBlocks().forEach(sb -> {
+            sb.setCancelled(false);
+        });
+        event = null;
         clearVariables();
-        return eventCancelled;
     }
 
     @Override
     public void run() {
-        runEvent();
+        runEvent(null);
     }
 }

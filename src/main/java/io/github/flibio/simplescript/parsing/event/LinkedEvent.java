@@ -22,33 +22,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript.parsing.parser;
+package io.github.flibio.simplescript.parsing.event;
 
-import io.github.flibio.simplescript.parsing.block.Block;
-import io.github.flibio.simplescript.parsing.block.Broadcast;
-import io.github.flibio.simplescript.parsing.line.Line;
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedVariable;
-import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
+import io.github.flibio.simplescript.parsing.block.Event;
 
-public class BroadcastParser implements Parser<Broadcast> {
+import java.util.UUID;
 
-    @Override
-    public boolean canParse(Line line) {
-        return line.getData().trim().matches("broadcast " + InlineVariableParser.getRegex());
+public class LinkedEvent {
+
+    private Event parentEvent;
+    private EventType type;
+    private boolean cancelled;
+    private UUID uuid;
+
+    public LinkedEvent(Event parentEvent, EventType type, UUID uuid) {
+        this.parentEvent = parentEvent;
+        this.type = type;
+        this.uuid = uuid;
     }
 
-    @Override
-    public Broadcast parse(Block superBlock, Line line) {
-        if (canParse(line)) {
-            Tokenizer tokenizer = new Tokenizer(line.getData());
-            tokenizer.nextToken();
-
-            ParsedVariable type = InlineVariableParser.parse(tokenizer);
-
-            return new Broadcast(superBlock, line.getIndentLevel(), type.getResult());
-        }
-        throw new InvalidParseStringException(line.getData() + " could not be parsed as an broadcast!");
+    public Event getParentEvent() {
+        return parentEvent;
     }
 
+    public EventType getType() {
+        return type;
+    }
+
+    public UUID getUniqueId() {
+        return uuid;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
 }

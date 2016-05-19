@@ -28,7 +28,7 @@ import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Send;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedType;
+import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedVariable;
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
 import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
 
@@ -49,10 +49,10 @@ public class SendParser implements Parser<Send> {
             Tokenizer tokenizer = new Tokenizer(line.getData());
             tokenizer.nextToken();
 
-            ParsedType mType = InlineVariableParser.parse(tokenizer, Arrays.asList("to"));
+            ParsedVariable mType = InlineVariableParser.parse(tokenizer);
             tokenizer = mType.getTokenizer();
-
-            ParsedType tType = InlineVariableParser.parse(tokenizer, Arrays.asList(""), VariableFunctions.SEND_MESSAGE);
+            tokenizer.nextToken();
+            ParsedVariable tType = InlineVariableParser.parse(tokenizer, Arrays.asList(VariableFunctions.SEND_MESSAGE));
             Send send = new Send(superBlock, line.getIndentLevel(), mType.getResult(), tType.getResult());
             send.addVariables(Stream.concat(mType.getVariables().stream(), tType.getVariables().stream()).collect(Collectors.toList()));
             return send;

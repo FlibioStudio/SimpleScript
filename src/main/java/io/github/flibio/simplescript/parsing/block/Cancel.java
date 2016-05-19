@@ -24,21 +24,49 @@
  */
 package io.github.flibio.simplescript.parsing.block;
 
+import io.github.flibio.simplescript.SimpleScript;
+import io.github.flibio.simplescript.parsing.event.EventType;
+import io.github.flibio.simplescript.parsing.event.LinkedEvent;
+
 public class Cancel extends Block {
+
+    private EventType linkedEventType;
 
     public Cancel(Block superBlock, int indentLevel) {
         super(superBlock, indentLevel);
     }
 
+    public Cancel(Block superBlock, int indentLevel, EventType linkedEvent) {
+        super(superBlock, indentLevel);
+        this.linkedEventType = linkedEvent;
+    }
+
     @Override
     public void run() {
-        Block curBlock = getSuperBlock();
-        while (curBlock != null) {
-            curBlock.setCancelled(true);
-            if (curBlock instanceof Event) {
-                ((Event) curBlock).setEventCancelled(true);
+        if (linkedEventType == null) {
+            Block curBlock = getSuperBlock();
+            while (curBlock != null) {
+                if (curBlock instanceof Event) {
+                    ((Event) curBlock).setEventCancelled(true);
+                }
+                curBlock = curBlock.getSuperBlock();
             }
-            curBlock = curBlock.getSuperBlock();
+        } else {
+            Block curBlock = getSuperBlock();
+            while (curBlock != null) {
+                if (curBlock instanceof Event) {
+                    ((Event) curBlock).getLinkedEvents().forEach(le -> {
+                        if (SimpleScript.getLinkedEvents().containsKey(le)) {
+                            LinkedEvent linkedEvent = SimpleScript.getLinkedEvents().get(le);
+                            if (linkedEvent.getType().equals(linkedEventType)) {
+                                linkedEvent.setCancelled(true);
+                                SimpleScript.addLinkedEvent(linkedEvent);
+                            }
+                        }
+                    });
+                }
+                curBlock = curBlock.getSuperBlock();
+            }
         }
     }
 }

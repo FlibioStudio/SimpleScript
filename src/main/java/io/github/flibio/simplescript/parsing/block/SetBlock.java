@@ -22,34 +22,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.github.flibio.simplescript.parsing.parser;
+package io.github.flibio.simplescript.parsing.block;
 
-import io.github.flibio.simplescript.parsing.block.Block;
-import io.github.flibio.simplescript.parsing.block.Event;
-import io.github.flibio.simplescript.parsing.event.EventType;
-import io.github.flibio.simplescript.parsing.event.EventTypes;
-import io.github.flibio.simplescript.parsing.line.Line;
-import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
+import io.github.flibio.simplescript.parsing.variable.Variable;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
-public class EventParser implements Parser<Event> {
+import java.util.Optional;
 
-    @Override
-    public boolean canParse(Line line) {
-        return line.getIndentLevel() == 0 ? line.getData().trim().matches("on ([a-zA-Z]+):") : false;
+public class SetBlock extends Block {
+
+    private String blockType, targetLoc;
+
+    public SetBlock(Block superBlock, int indentLevel, String targetLoc, String blockType) {
+        super(superBlock, indentLevel);
+        this.targetLoc = targetLoc;
+        this.blockType = blockType;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Event parse(Block superBlock, Line line) {
-        if (canParse(line)) {
-            Tokenizer tokenizer = new Tokenizer(line.getData());
-            tokenizer.nextToken();
-
-            String eventName = tokenizer.nextToken().getValue();
-            EventType eventType = EventTypes.valueOf(eventName);
-
-            return new Event(null, line.getIndentLevel(), eventType);
+    public void run() {
+        Optional<Variable> bOpt = getVariable(blockType);
+        Optional<Variable> lOpt = getVariable(targetLoc);
+        if (bOpt.isPresent() && lOpt.isPresent()) {
+            Variable vBlock = bOpt.get();
+            Variable vLocation = lOpt.get();
+            if (vBlock.getValue() instanceof BlockType && vLocation.getValue() instanceof Location<?>) {
+                BlockType blockType = (BlockType) vBlock.getValue();
+                Location<World> location = (Location<World>) vLocation.getValue();
+                location.getExtent().getLocation(location.getBlockPosition()).setBlockType(blockType);
+            }
         }
-        throw new InvalidParseStringException(line.getData() + " could not be parsed as an event!");
     }
-
 }

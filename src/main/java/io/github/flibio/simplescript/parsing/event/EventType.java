@@ -26,6 +26,7 @@ package io.github.flibio.simplescript.parsing.event;
 
 import io.github.flibio.simplescript.parsing.variable.types.DefinedVariableType;
 
+import java.util.Arrays;
 import java.util.List;
 
 public interface EventType {
@@ -33,4 +34,8 @@ public interface EventType {
     public String getId();
 
     public List<DefinedVariableType> getDefinedVariables();
+
+    public default List<EventType> getLinkedEventTypes() {
+        return Arrays.asList();
+    }
 }

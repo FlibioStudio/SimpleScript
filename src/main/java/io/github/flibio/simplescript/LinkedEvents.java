@@ -26,48 +26,35 @@ package io.github.flibio.simplescript;
 
 import io.github.flibio.simplescript.parsing.FileResolver;
 import io.github.flibio.simplescript.parsing.event.EventTypes;
-import io.github.flibio.simplescript.parsing.variable.Variable;
-import io.github.flibio.simplescript.parsing.variable.types.DefinedVariableTypes;
-import org.spongepowered.api.entity.living.player.Player;
+import io.github.flibio.simplescript.parsing.event.LinkedEvent;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.cause.entity.spawn.BlockSpawnCause;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.item.inventory.DropItemEvent;
 
-public class Events {
+public class LinkedEvents {
 
     private FileResolver resolver;
 
-    public Events(FileResolver resolver) {
+    public LinkedEvents(FileResolver resolver) {
         this.resolver = resolver;
     }
 
     @Listener
-    public void onJoin(ClientConnectionEvent.Join event) {
-        resolver.getEvents().get(EventTypes.JOIN).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity().getUniqueId(), DefinedVariableTypes.PLAYER));
-            e.run();
-        });
-    }
-
-    @Listener
-    public void onQuit(ClientConnectionEvent.Disconnect event) {
-        resolver.getEvents().get(EventTypes.QUIT).forEach(e -> {
-            e.addVariable(new Variable("player", event.getTargetEntity().getUniqueId(), DefinedVariableTypes.PLAYER));
-            e.run();
-        });
-    }
-
-    @Listener
-    public void onBreak(ChangeBlockEvent.Break event, @First Player player) {
-        if (event.getTransactions().size() > 0) {
-            resolver.getEvents().get(EventTypes.BREAK).forEach(e -> {
-                e.addVariable(new Variable("player", player.getUniqueId(), DefinedVariableTypes.PLAYER));
-                e.addVariable(new Variable("block", event.getTransactions().get(0).getOriginal(), DefinedVariableTypes.BLOCK));
-                e.setCompareObject(event.getTransactions().get(0).getOriginal().getLocation().get());
-                e.runEvent(event);
+    public void onDrop(DropItemEvent.Destruct event, @First BlockSpawnCause cause) {
+        resolver.getEvents().values().forEach(mainEvent -> {
+            mainEvent.getLinkedEvents().forEach(eventUuid -> {
+                if (SimpleScript.getLinkedEvents().containsKey(eventUuid)) {
+                    LinkedEvent linkedEvent = SimpleScript.getLinkedEvents().get(eventUuid);
+                    if (linkedEvent.getType().equals(EventTypes.DROP)) {
+                        if (linkedEvent.isCancelled() && mainEvent.getCompareObject().equals(cause.getBlockSnapshot().getLocation().get())) {
+                            event.getEntities().clear();
+                            linkedEvent.setCancelled(false);
+                            SimpleScript.addLinkedEvent(linkedEvent);
+                        }
+                    }
+                }
             });
-        }
+        });
     }
-
 }

@@ -26,19 +26,35 @@ package io.github.flibio.simplescript.parsing.parser;
 
 import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Cancel;
+import io.github.flibio.simplescript.parsing.event.EventType;
+import io.github.flibio.simplescript.parsing.event.EventTypes;
 import io.github.flibio.simplescript.parsing.line.Line;
+import io.github.flibio.simplescript.parsing.tokenizer.Token;
+import io.github.flibio.simplescript.parsing.tokenizer.TokenTypes;
+import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
 
 public class CancelParser implements Parser<Cancel> {
 
     @Override
     public boolean canParse(Line line) {
-        return line.getData().trim().matches("cancel");
+        return line.getData().trim().matches("cancel( [a-zA-Z]*)?");
     }
 
     @Override
     public Cancel parse(Block superBlock, Line line) {
         if (canParse(line)) {
-            return new Cancel(superBlock, line.getIndentLevel());
+            Tokenizer tokenizer = new Tokenizer(line.getData().trim());
+            tokenizer.nextToken();
+            Token nextToken = tokenizer.nextToken();
+            if (nextToken.getType().equals(TokenTypes.EMPTY)) {
+                // Cancel the main event
+                return new Cancel(superBlock, line.getIndentLevel());
+            } else {
+                // Cancel a linked event
+                EventType type = EventTypes.valueOf(nextToken.getValue());
+                if (type != null)
+                    return new Cancel(superBlock, line.getIndentLevel(), type);
+            }
         }
         throw new InvalidParseStringException(line.getData() + " could not be parsed as a cancel!");
     }

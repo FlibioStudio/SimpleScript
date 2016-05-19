@@ -28,7 +28,7 @@ import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Conditional;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedType;
+import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedVariable;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariablePropertyParser;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariablePropertyParser.ParsedProperty;
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
@@ -40,18 +40,17 @@ public class ConditionalParser implements Parser<Conditional> {
     @Override
     public boolean canParse(Line line) {
         return line.getData().trim()
-                .matches("^" + InlineVariableParser.getRegex() + " (has|have) ([a-zA-Z ]+) (not)? of ((\".*\")|([-]?[0-9]+(.[0-9]+)?))$");
+                .matches("^" + InlineVariableParser.getRegex() + " (has|have) ([a-zA-Z ]+)( not)? of ((\".*\")|([-]?[0-9]+(.[0-9]+)?))$");
     }
 
     @Override
     public Conditional parse(Block superBlock, Line line) {
         if (canParse(line)) {
             Tokenizer tokenizer = new Tokenizer(line.getData());
-
-            ParsedType var = InlineVariableParser.parse(tokenizer, Arrays.asList("has", "have"));
+            ParsedVariable var = InlineVariableParser.parse(tokenizer);
 
             tokenizer = var.getTokenizer();
-
+            tokenizer.nextToken();
             if (InlineVariablePropertyParser.isValid(tokenizer.getData(), Arrays.asList("of", "not"))) {
                 ParsedProperty parsed = InlineVariablePropertyParser.parse(tokenizer, Arrays.asList("of", "not"));
                 tokenizer = parsed.getTokenizer();

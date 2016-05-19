@@ -28,9 +28,10 @@ import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Teleport;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser;
-import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedType;
+import io.github.flibio.simplescript.parsing.parser.variable.InlineVariableParser.ParsedVariable;
 import io.github.flibio.simplescript.parsing.tokenizer.Tokenizer;
 import io.github.flibio.simplescript.parsing.variable.VariableFunctions;
+import io.github.flibio.simplescript.parsing.variable.types.RuntimeVariableTypes;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -49,10 +50,12 @@ public class TeleportParser implements Parser<Teleport> {
             Tokenizer tokenizer = new Tokenizer(line.getData());
             tokenizer.nextToken();
 
-            ParsedType wType = InlineVariableParser.parse(tokenizer, Arrays.asList("to"), VariableFunctions.TELEPORT);
+            ParsedVariable wType = InlineVariableParser.parse(tokenizer, Arrays.asList(VariableFunctions.TELEPORT));
             tokenizer = wType.getTokenizer();
 
-            ParsedType lType = InlineVariableParser.parse(tokenizer, Arrays.asList(""));
+            tokenizer.nextToken();
+
+            ParsedVariable lType = InlineVariableParser.parse(tokenizer, RuntimeVariableTypes.LOCATION);
             Teleport teleport = new Teleport(superBlock, line.getIndentLevel(), lType.getResult(), wType.getResult());
             teleport.addVariables(Stream.concat(wType.getVariables().stream(), lType.getVariables().stream()).collect(Collectors.toList()));
             return teleport;

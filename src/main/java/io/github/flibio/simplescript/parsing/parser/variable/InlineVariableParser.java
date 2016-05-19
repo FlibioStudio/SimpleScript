@@ -48,81 +48,114 @@ public class InlineVariableParser {
         return "(([a-zA-Z ]+)|(\".*\")|([-]?[0-9]+(\\.[0-9]+)?[ ]*)*)";
     }
 
-    public static ParsedType parse(Tokenizer tokenizer, List<String> endChars, VariableFunction... functions) {
+    public static ParsedVariable
+            parse(Tokenizer tokenizer, List<VariableFunction> functions, List<RuntimeVariableType<?>> types) {
+        Tokenizer oTokenizer = new Tokenizer(tokenizer.getData());
         String variableString = "";
-        // Seperate the variable from the rest of the string
+        ParsedVariable workingReturn = null;
+        // Try to parse a variable
         Token token = tokenizer.nextToken();
-        while (!isEnd(endChars, token.getValue().trim())) {
-            // Add the quotes back to the token if it was a string
-            variableString += token.getType().equals(TokenTypes.STRING) ? " \"" + token.getValue() + "\"" : " " + token.getValue();
+        if (token.getValue().equalsIgnoreCase("the")) {
             token = tokenizer.nextToken();
+            oTokenizer = new Tokenizer(tokenizer.getData());
         }
-        // Trim the variable and remove 'the'
-        variableString = variableString.trim();
-        if (variableString.startsWith("the")) {
-            variableString = variableString.replaceFirst("the", "").trim();
-        }
-        System.out.println(variableString);
-        // Check if the variable is a defined type
-        for (DefinedVariableType vType : DefinedVariableTypes.values()) {
-            if (vType.getFunctions().containsAll(Arrays.asList(functions))) {
-                if (vType.getId().equalsIgnoreCase(variableString)) {
-                    return new ParsedType(variableString, tokenizer);
+        int tries = 0;
+        mainLoop: while (!token.getType().equals(TokenTypes.EMPTY)) {
+            if (tries > 3) {
+                break;
+            }
+            // Append the variable string
+            variableString += token.getType().equals(TokenTypes.STRING) ? " \"" + token.getValue() + "\"" : " " + token.getValue();
+            // Trim the string
+            variableString = variableString.trim();
+            // Check if the variable string is a defined type
+            for (DefinedVariableType vType : DefinedVariableTypes.values()) {
+                if (vType.getFunctions().containsAll((functions))) {
+                    if (variableString.startsWith(vType.getId())) {
+                        // The variable is a defined variable
+                        String propertyString = variableString.replaceFirst(vType.getId(), "").trim();
+                        // Check if the defined variable contains a property
+                        for (VariableProperty<?> property : VariableProperties.values()) {
+                            // Check if the type is on the list
+                            if (types.size() > 0) {
+                                if (!types.contains(property.getType())) {
+                                    continue;
+                                }
+                            }
+                            if (propertyString.startsWith(property.getId())) {
+                                // The defined variable contains a property
+                                String finalVarString = vType.getId() + " " + property.getId();
+                                workingReturn = new ParsedVariable(finalVarString, convertTokenizer(oTokenizer, finalVarString));
+                                token = tokenizer.nextToken();
+                                continue mainLoop;
+                            }
+                        }
+                        // The defined variable does not contain a property
+                        workingReturn = new ParsedVariable(vType.getId(), convertTokenizer(oTokenizer, vType.getId()));
+                        token = tokenizer.nextToken();
+                        continue mainLoop;
+                    }
                 }
             }
-        }
-        // Check if the variable is a defined type with property
-        String[] varArray = variableString.split(" ", 2);
-        if (varArray.length == 2) {
-            String variable = varArray[0];
-            String property = varArray[1];
-            for (DefinedVariableType vType : DefinedVariableTypes.values()) {
-                if (vType.getFunctions().containsAll(Arrays.asList(functions))) {
-                    if (vType.getId().equalsIgnoreCase(variable)) {
-                        for (VariableProperty<?> prop : VariableProperties.values()) {
-                            if (prop.getId().equalsIgnoreCase(property)) {
-                                // The property is valid
-                                return new ParsedType(variable + " " + property, tokenizer);
-                            }
+            // Check if the variable string is a runtime type
+            for (RuntimeVariableType<?> type : RuntimeVariableTypes.values()) {
+                // Check if the type is on the list
+                if (types.size() > 0) {
+                    if (!types.contains(type)) {
+                        continue;
+                    }
+                }
+                if (type.isValid(variableString)) {
+                    Optional<?> rOpt = type.parse(variableString);
+                    if (rOpt.isPresent()) {
+                        Object raw = rOpt.get();
+                        if (raw instanceof ParsedVarType<?>) {
+                            ParsedVarType<?> pType = (ParsedVarType<?>) raw;
+                            workingReturn =
+                                    new ParsedVariable(pType.getKey(), convertTokenizer(oTokenizer, variableString), new Variable(pType.getKey(),
+                                            pType.getResult(), type));
+                            token = tokenizer.nextToken();
+                            continue mainLoop;
                         }
                     }
                 }
             }
+            // The string failed to be parsed
+            token = tokenizer.nextToken();
         }
-        // Check if the variable is a runtime type
-        for (RuntimeVariableType<?> type : RuntimeVariableTypes.values()) {
-            if (type.isValid(variableString)) {
-                System.out.println("valid");
-                Optional<?> rOpt = type.parse(variableString);
-                if (rOpt.isPresent()) {
-                    Object raw = rOpt.get();
-                    if (raw instanceof ParsedVarType<?>) {
-                        ParsedVarType<?> pType = (ParsedVarType<?>) raw;
-                        return new ParsedType(pType.getKey(), tokenizer, new Variable(pType.getKey(), pType.getResult(), type));
-                    }
-                }
-            }
-        }
+        // Return the last working variable if possible
+        if (workingReturn != null)
+            return workingReturn;
         // The variable could not be parsed
         throw new VariableException("'" + variableString + "' could not be parsed to a valid variable!");
     }
 
-    private static boolean isEnd(List<String> endChars, String tokenValue) {
-        for (String endChar : endChars) {
-            if (endChar.trim().equalsIgnoreCase(tokenValue.trim())) {
-                return true;
-            }
-        }
-        return false;
+    public static ParsedVariable parse(Tokenizer oTokenizer, RuntimeVariableType<?>... types) {
+        return parse(oTokenizer, Arrays.asList(), Arrays.asList(types));
     }
 
-    public static class ParsedType {
+    public static ParsedVariable parse(Tokenizer oTokenizer, List<VariableFunction> functions, RuntimeVariableType<?>... types) {
+        return parse(oTokenizer, functions, Arrays.asList(types));
+    }
+
+    private static Tokenizer convertTokenizer(Tokenizer tokenizer, String toSkip) {
+        Tokenizer convertTokenizer = new Tokenizer(tokenizer.getData());
+        String tokenData = convertTokenizer.getData();
+        String targetData = tokenData.replaceFirst(toSkip, "").trim();
+        while (!tokenData.equalsIgnoreCase(targetData)) {
+            convertTokenizer.nextToken();
+            tokenData = convertTokenizer.getData();
+        }
+        return convertTokenizer;
+    }
+
+    public static class ParsedVariable {
 
         private String result;
         private Tokenizer tokenizer;
         private List<Variable> variables = new ArrayList<>();
 
-        public ParsedType(String result, Tokenizer tokenizer, Variable... vars) {
+        public ParsedVariable(String result, Tokenizer tokenizer, Variable... vars) {
             this.result = result;
             this.tokenizer = tokenizer;
             this.variables = Arrays.asList(vars);

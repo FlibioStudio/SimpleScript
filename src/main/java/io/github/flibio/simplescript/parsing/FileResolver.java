@@ -30,7 +30,8 @@ import com.google.common.io.Files;
 import io.github.flibio.simplescript.SimpleScript;
 import io.github.flibio.simplescript.parsing.block.Block;
 import io.github.flibio.simplescript.parsing.block.Event;
-import io.github.flibio.simplescript.parsing.block.Event.EventType;
+import io.github.flibio.simplescript.parsing.event.EventType;
+import io.github.flibio.simplescript.parsing.event.LinkedEvent;
 import io.github.flibio.simplescript.parsing.line.Line;
 import io.github.flibio.simplescript.parsing.parser.BroadcastParser;
 import io.github.flibio.simplescript.parsing.parser.CancelParser;
@@ -39,6 +40,7 @@ import io.github.flibio.simplescript.parsing.parser.DropParser;
 import io.github.flibio.simplescript.parsing.parser.EventParser;
 import io.github.flibio.simplescript.parsing.parser.Parser;
 import io.github.flibio.simplescript.parsing.parser.SendParser;
+import io.github.flibio.simplescript.parsing.parser.SetBlockParser;
 import io.github.flibio.simplescript.parsing.parser.TeleportParser;
 import org.slf4j.Logger;
 
@@ -51,13 +53,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public class FileResolver {
 
     private Logger logger = SimpleScript.getInstance().getLogger();
 
     private List<Parser<?>> parsers = Arrays.asList(new EventParser(), new BroadcastParser(), new SendParser(), new ConditionalParser(),
-            new CancelParser(), new TeleportParser(), new DropParser());
+            new CancelParser(), new TeleportParser(), new DropParser(), new SetBlockParser());
     private Map<Integer, Block> superBlocks = new HashMap<>();
     private Multimap<EventType, Event> events = HashMultimap.create();
 
@@ -66,7 +69,7 @@ public class FileResolver {
 
         for (Line line : lines) {
             // Skip lines that are commented
-            if (line.getData().length() >= 1 && line.getData().substring(0, 1).equals("#"))
+            if (line.getData().trim().length() >= 1 && line.getData().trim().substring(0, 1).equals("#"))
                 continue;
             boolean parsed = false;
             for (Parser<?> parser : parsers) {
@@ -84,6 +87,17 @@ public class FileResolver {
                         if (block instanceof Event) {
                             // Add the event to the event list
                             Event event = (Event) block;
+                            // Add any linked events
+                            for (EventType type : event.getType().getLinkedEventTypes()) {
+                                UUID uuid = UUID.randomUUID();
+                                while (SimpleScript.getLinkedEvents().containsKey(uuid)) {
+                                    uuid = UUID.randomUUID();
+                                }
+                                LinkedEvent linkedEvent = new LinkedEvent(event, type, uuid);
+                                event.addLinkedEvent(uuid);
+                                SimpleScript.addLinkedEvent(linkedEvent);
+                            }
+                            // Add the event to the event list
                             events.put(event.getType(), event);
                         }
                         parsed = true;
