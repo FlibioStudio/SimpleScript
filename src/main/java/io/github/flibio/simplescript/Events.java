@@ -70,4 +70,15 @@ public class Events {
         }
     }
 
+    @Listener
+    public void onBreak(ChangeBlockEvent.Place event, @First Player player) {
+        if (event.getTransactions().size() > 0) {
+            resolver.getEvents().get(EventTypes.PLACE).forEach(e -> {
+                e.addVariable(new Variable("player", player.getUniqueId(), DefinedVariableTypes.PLAYER));
+                e.addVariable(new Variable("block", event.getTransactions().get(0).getOriginal(), DefinedVariableTypes.BLOCK));
+                e.runEvent(event);
+            });
+        }
+    }
+
 }

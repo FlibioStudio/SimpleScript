@@ -72,6 +72,18 @@ public class EventTypes {
 
     };
 
+    public static final EventType PLACE = new EventType() {
+
+        public String getId() {
+            return "place";
+        }
+
+        public List<DefinedVariableType> getDefinedVariables() {
+            return Arrays.asList(DefinedVariableTypes.PLAYER, DefinedVariableTypes.BLOCK);
+        }
+
+    };
+
     public static final EventType DROP = new EventType() {
 
         public String getId() {
@@ -84,7 +96,7 @@ public class EventTypes {
     };
 
     public static List<EventType> values() {
-        return Arrays.asList(JOIN, QUIT, BREAK, DROP);
+        return Arrays.asList(JOIN, QUIT, BREAK, PLACE, DROP);
     }
 
     public static EventType valueOf(String valueOf) {
